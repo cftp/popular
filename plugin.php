@@ -1,6 +1,6 @@
 <?php
 /*
- * Plugin Name: CFTP Analytics
+ * Plugin Name: CFTP Popular
  * Plugin URI: http://disqus.com/
  * Description: Queries Analytic services for web traffic data
  * Author: Tom J Nowell, Code For The People
@@ -16,4 +16,4 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 
 $model = new cftp_analytics_option_model();
 $factory = new cftp_analytics_factory( $model );
-$plugin = new cftp_analytics( $factory );
+$plugin = new cftp_analytics( $factory, $model );

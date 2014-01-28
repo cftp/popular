@@ -2,7 +2,9 @@
 
 class cftp_analytics_settings_page {
 
-	public function __construct() {
-		//
+	private $model = null;
+
+	public function __construct( cftp_analytics_model $model ) {
+		$this->model = $model;
 	}
 }

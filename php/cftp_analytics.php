@@ -14,7 +14,6 @@ class cftp_analytics {
 	public function __construct( cftp_analytics_factory $factory, cftp_analytics_model $model ) {
 		$this->factory = $factory;
 		$this->model = $model;
-		// TODO: Implement __construct() method.
 	}
 
 }
