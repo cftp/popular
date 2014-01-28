@@ -18,23 +18,31 @@ class cftp_analytics_settings_page {
 	}
 
 	public function add_menu() {
-		add_submenu_page( 'options-general.php', 'Popular', 'Popular', 'manage_options', 'cftp_popular_settings_page', array( $this, 'options_page' ) );
-		//add_menu_page('Popular', 'Popular', 'administrator', __FILE__, 'cftp_popular_settings_page', plugins_url('/images/icon.png', __FILE__) );
+		add_options_page(
+			'Popular',
+			'Popular Settings',
+			'manage_options',
+			'cftp_popular_settings_page',
+			array( $this, 'options_page' )
+		);
 	}
 
 	public function register_settings() {
+		$option_group = 'cftp-popular-settings-group';
 		$sources = $this->model->getSources();
+		$auth_section = 'cftp_popular_setting_auth_section';
+		$page = 'cftp_popular_settings_page';
 		add_settings_section(
-			'cftp_popular_setting_auth_section', // ID
+			$auth_section, // ID
 			'Services', // Title
 			array( $this, 'sectionUI' ), // Callback
-			'cftp_popular_settings_page' // Page
+			$page // Page
 		);
 
 		foreach ( $sources as $source ) {
-			$source->registerSettings();
+			$source->registerSettings( $option_group, $auth_section, $page );
 		}
-		register_setting( 'cftp-popular-settings-group', 'new_option_name' );
+		register_setting( $option_group, 'new_option_name' );
 
 	}
 
@@ -49,7 +57,7 @@ class cftp_analytics_settings_page {
 
 			<form method="post" action="options.php">
 				<?php settings_fields( 'cftp-popular-settings-group' ); ?>
-				<?php do_settings_sections( 'cftp-popular-settings-group' ); ?>
+				<?php do_settings_sections( 'cftp_popular_settings_page' ); ?>
 				<table class="form-table">
 					<tr valign="top">
 						<th scope="row">New Option Name</th>

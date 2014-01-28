@@ -16,7 +16,7 @@ interface cftp_analytics_source {
 	 *
 	 * @return null
 	 */
-	public function registerSettings();
+	public function registerSettings( $option_group, $section_id, $page );
 
 	/**
 	 * @return mixed

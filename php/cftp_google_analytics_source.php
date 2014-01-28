@@ -20,25 +20,30 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	/**
-	 *
-	 * @return null
+	 * @param $option_group
+	 * @param $section_id
+	 * @param $page
 	 */
-	public function registerSettings() {
+	public function registerSettings( $option_group, $section_id, $page ) {
 		// TODO: Implement registerSettings() method.
+		$option_name = 'cftp_popular_google_analytics';
 		register_setting(
-			'cftp_popular_setting_auth_section', // Option group
-			'cftp-popular-google-analytics' // Option name
+			$option_group, // Option group
+			$option_name // Option name
 		);
 
 		add_settings_field(
-			'cftp-popular-google-analytics', // ID
+			$option_name, // ID
 			'Google Analytics', // Title
 			array( $this, 'authUI' ), // Callback
-			'cftp_popular_settings_page', // Page
-			'cftp_popular_setting_auth_section' // Section
+			$page, // Page
+			$section_id // Section
 		);
 	}
 
+	/**
+	 *
+	 */
 	public function authUI() {
 		echo 'moomins';
 	}
