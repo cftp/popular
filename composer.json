@@ -1,0 +1,11 @@
+{
+    "name": "cftp/analytics",
+    "description": "Provides analytics data for posts and articles",
+    "minimum-stability": "stable",
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "Code For The People"
+        }
+    ]
+}
