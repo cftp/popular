@@ -1,5 +1,5 @@
 {
-    "name": "cftp/analytics",
+    "name": "cftp/popular",
     "description": "Provides analytics data for posts and articles",
     "minimum-stability": "stable",
     "type": "wordpress-plugin",
@@ -11,7 +11,8 @@
     ],
     "require": {
         "composer/installers": "~1.0",
-        "php": ">=5.3"
+        "php": ">=5.3",
+		"google/api-client": "dev-master"
     },
     "autoload"    : {
         "classmap": [
