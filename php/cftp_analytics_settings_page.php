@@ -42,12 +42,11 @@ class cftp_analytics_settings_page {
 		foreach ( $sources as $source ) {
 			$source->registerSettings( $option_group, $auth_section, $page );
 		}
-		register_setting( $option_group, 'new_option_name' );
 
 	}
 
 	public function sectionUI() {
-		echo 'hola';
+		echo 'These are the available services you can configure';
 	}
 
 	public function options_page() {
@@ -58,12 +57,6 @@ class cftp_analytics_settings_page {
 			<form method="post" action="options.php">
 				<?php settings_fields( 'cftp-popular-settings-group' ); ?>
 				<?php do_settings_sections( 'cftp_popular_settings_page' ); ?>
-				<table class="form-table">
-					<tr valign="top">
-						<th scope="row">New Option Name</th>
-						<td><input type="text" name="new_option_name" value="<?php echo get_option('new_option_name'); ?>" /></td>
-					</tr>
-				</table>
 
 				<?php submit_button(); ?>
 
