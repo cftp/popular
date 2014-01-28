@@ -5,22 +5,16 @@
  */
 class cftp_analytics {
 
+	private $factory = null;
+	private $model = null;
+
 	/**
 	 *
 	 */
-	public function __construct() {
+	public function __construct( cftp_analytics_factory $factory, cftp_analytics_model $model ) {
+		$this->factory = $factory;
+		$this->model = $model;
 		// TODO: Implement __construct() method.
-	}
-
-	/**
-	 *
-	 */
-	public function __destruct() {
-		// TODO: Implement __destruct() method.
-	}
-
-	public function addSource( cftp_analytics_source $source ) {
-		//
 	}
 
 }
