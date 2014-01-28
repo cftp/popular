@@ -2,6 +2,7 @@
     "name": "cftp/analytics",
     "description": "Provides analytics data for posts and articles",
     "minimum-stability": "stable",
+    "type": "wordpress-plugin",
     "license": "GPL-2.0+",
     "authors": [
         {
