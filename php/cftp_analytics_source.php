@@ -22,4 +22,6 @@ interface cftp_analytics_source {
 	 * @return mixed
 	 */
 	public function displaySettings();
+
+	public function isConfigured();
 }

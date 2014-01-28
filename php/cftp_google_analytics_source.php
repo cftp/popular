@@ -35,23 +35,24 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		add_settings_field(
 			$option_name, // ID
 			'Google Analytics', // Title
-			array( $this, 'authUI' ), // Callback
+			array( $this, 'displaySettings' ), // Callback
 			$page, // Page
 			$section_id // Section
 		);
 	}
 
-	/**
-	 *
-	 */
-	public function authUI() {
-		echo 'moomins';
+	public function isConfigured() {
+		return false;
 	}
 
 	/**
 	 *
 	 */
 	public function displaySettings() {
-		// TODO: Implement displaySettings() method.
+		if ( !$this->isConfigured() ) {
+			?>
+			<a href="#" class="button">Activate Google Analytics</a>
+		<?php
+		}
 	}
 }

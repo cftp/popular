@@ -20,18 +20,25 @@ class cftp_null_analytics_source implements cftp_analytics_source {
 	}
 
 	/**
+	 * Register settings for the WordPress options page
+	 *
 	 * @return null
 	 */
-	public function registerSettings()
-	{
+	public function registerSettings( $option_group, $section_id, $page ) {
 		// TODO: Implement registerSettings() method.
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isConfigured() {
+		return false;
 	}
 
 	/**
 	 *
 	 */
-	public function displaySettings()
-	{
+	public function displaySettings() {
 		// TODO: Implement displaySettings() method.
 	}
 } 
