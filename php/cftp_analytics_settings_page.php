@@ -19,8 +19,8 @@ class cftp_analytics_settings_page {
 
 	public function add_menu() {
 		add_options_page(
-			'Popular',
 			'Popular Settings',
+			'Popular',
 			'manage_options',
 			'cftp_popular_settings_page',
 			array( $this, 'options_page' )
