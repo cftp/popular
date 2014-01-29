@@ -5,7 +5,13 @@
  */
 class cftp_google_analytics_source implements cftp_analytics_source {
 
+	/**
+	 * @var Google_Client|null
+	 */
 	private $client = null;
+	/**
+	 * @var Google_AnalyticsService|null
+	 */
 	private $service = null;
 
 	/**
@@ -16,13 +22,17 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		// must consider using an object factory and passing in as a parameter instead
 		$this->client = new Google_Client();
 		$this->client->setApplicationName( "CFTP Popular" );
+
 		// Visit https://code.google.com/apis/console?api=analytics to generate your
 		// client id, client secret, and to register your redirect uri.
-		// $client->setClientId('insert_your_oauth2_client_id');
-		// $client->setClientSecret('insert_your_oauth2_client_secret');
-		// $client->setRedirectUri('insert_your_oauth2_redirect_uri');
-		// $client->setDeveloperKey('insert_your_developer_key');
-		$this->service = new Google_AnalyticsService($client);
+		$this->client->setClientId('428049761702-ns5qdmhmstupbpi22oo9iokohq153m5p.apps.googleusercontent.com');
+		$this->client->setClientSecret('Nl8codQLU7JiuX57Rm6RLasy');
+		$this->client->setRedirectUri('https://cyclingweekly.keystone.ipc/wp-admin/options-general.php?page=cftp_popular_settings_page');
+		//$this->client->setDeveloperKey('insert_your_developer_key');
+
+		$this->client->setScopes( array( ANALYTICS_SCOPE ) );
+		$this->client->setUseObjects(true);
+		$this->service = new Google_AnalyticsService( $this->client );
 	}
 
 	/**
@@ -38,7 +48,6 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 * @param $page
 	 */
 	public function registerSettings( $option_group, $section_id, $page ) {
-		// TODO: Implement registerSettings() method.
 		$option_name = 'cftp_popular_google_analytics';
 		register_setting(
 			$option_group, // Option group
@@ -54,6 +63,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		);
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function isConfigured() {
 		if ( $this->client->getAccessToken() ) {
 			return true;
@@ -66,8 +78,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 */
 	public function displaySettings() {
 		if ( !$this->isConfigured() ) {
+			$authUrl = $this->client->createAuthUrl();
 			?>
-			<a href="#" class="button">Activate Google Analytics</a>
+			<a href="<?php echo $authUrl; ?>" class="button">Activate Google Analytics</a>
 		<?php
 		} else {
 			$props = $this->service->management_webproperties->listManagementWebproperties("~all");
