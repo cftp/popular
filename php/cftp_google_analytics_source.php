@@ -21,18 +21,42 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		// @TODO: there's something inherently wrong about creating the google client in here
 		// must consider using an object factory and passing in as a parameter instead
 		$this->client = new Google_Client();
+
+
+		$this->client->setApprovalPrompt("force");
+		$this->client->setAccessType('offline');
+
 		$this->client->setApplicationName( "CFTP Popular" );
 
 		// Visit https://code.google.com/apis/console?api=analytics to generate your
 		// client id, client secret, and to register your redirect uri.
 		$this->client->setClientId('428049761702-ns5qdmhmstupbpi22oo9iokohq153m5p.apps.googleusercontent.com');
 		$this->client->setClientSecret('Nl8codQLU7JiuX57Rm6RLasy');
-		$this->client->setRedirectUri('https://cyclingweekly.keystone.ipc/wp-admin/options-general.php?page=cftp_popular_settings_page');
+		$this->client->setRedirectUri('http://www.tomjn.com/wp-admin/options-general.php?page=cftp_popular_settings_page');
 		//$this->client->setDeveloperKey('insert_your_developer_key');
 
-		$this->client->setScopes( array( ANALYTICS_SCOPE ) );
+		$this->client->setScopes( array( 'https://www.googleapis.com/auth/analytics.readonly' ) );
 		$this->client->setUseObjects(true);
 		$this->service = new Google_AnalyticsService( $this->client );
+
+		$token = '';
+
+		if ( isset( $_GET['code'] ) ) {
+			try {
+				$this->client->authenticate();
+				$newtoken = $this->client->getAccessToken();
+				update_option('cftp_popular_ga_token', $newtoken );
+				$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+				wp_safe_redirect( $redirect );
+			} catch ( Google_IOException $e ) {
+				wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google IO Exception thrown with message: '.$e->getMessage());
+			}
+		} else {
+			$token = get_option( 'cftp_popular_ga_token' );
+		}
+		if ( !empty( $token ) ) {
+			$this->client->setAccessToken( $token );
+		}
 	}
 
 	/**
@@ -81,19 +105,79 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$authUrl = $this->client->createAuthUrl();
 			?>
 			<a href="<?php echo $authUrl; ?>" class="button">Activate Google Analytics</a>
-		<?php
+			<?php
 		} else {
+
 			$props = $this->service->management_webproperties->listManagementWebproperties("~all");
-			print "<h1>Web Properties</h1><pre>" . print_r($props, true) . "</pre>";
+			print "<h4>Web Properties</h4>";
+			//echo "<pre>" . print_r($props, true) . "</pre>";
+			echo '<ul>';
+			foreach ( $props->items as $prop ) {
+				echo '<li style="padding:1em; margin:0 1em;">';
+				echo '<h5>'.$prop->accountId.' '.$prop->id.' '.$prop->internalWebPropertyId.' '.$prop->name.' at '.$prop->websiteUrl.'</h5>';
+				try {
+					$profiles = $this->service->management_profiles->listManagementProfiles( $prop->accountId, $prop->id );
+					echo '<ul>';
+					foreach ( $profiles->items as $prop ) {
 
+						echo '<li>'.$prop->id.' '.$prop->name;
+						$this->display( $prop->id );
+						echo '</li>';
+					}
+					echo '</ul>';
+				} catch ( Google_ServiceException $e ) {
+					print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
+				}
+				echo '</li>';
+			}
+			echo '</ul>';
 			$accounts = $this->service->management_accounts->listManagementAccounts();
-			print "<h1>Accounts</h1><pre>" . print_r($accounts, true) . "</pre>";
-
-			$segments = $this->service->management_segments->listManagementSegments();
-			print "<h1>Segments</h1><pre>" . print_r($segments, true) . "</pre>";
-
-			$goals = $this->service->management_goals->listManagementGoals("~all", "~all", "~all");
-			print "<h1>Segments</h1><pre>" . print_r($goals, true) . "</pre>";
+			print "<h4>Accounts</h4>";
+			echo '<ul>';
+			foreach ( $accounts->items as $account ) {
+				echo '<li>';
+				echo $account->id.': '.$account->name;
+				echo'</li>';
+			}
+			echo '</ul>';
 		}
 	}
+
+	private function display( $profile_id ) {
+		try {
+			$data = $this->service->data_ga->get(
+				'ga:'.$profile_id,
+				'2013-01-01',
+				'2014-01-01',
+				'ga:pageviews',
+				array(
+					'dimensions' => 'ga:pageTitle,ga:pagePath',
+					'sort' => '-ga:pageviews',
+					'filters' => 'ga:pagePath!=/',
+					'max-results' => '10'));
+			echo '<table>';
+			echo '<thead><tr><th>'.$data->columnHeaders[0]->name.'</th><th>'.$data->columnHeaders[1]->name.'</th><th>'.$data->columnHeaders[2]->name.'</th></tr></thead>';
+			foreach ( $data->rows as $row ) {
+				echo '<tr><td>'.$row[0].'</td><td>'.$row[1].'</td><td>'.$row[2].'</td></tr>';
+			}
+			echo '</table>';
+			//echo "<pre>" . print_r( $data, true) . "</pre>";
+		} catch( Google_ServiceException $e ) {
+			echo 'Google_ServiceException thrown with message: '.$e->getMessage();
+		}
+	}
+
+	private function getProfileID( Google_Account $account ) {
+		$profile_id = $account->id;
+		if (empty($profile_id)) {
+			return false;
+		}
+
+		$account_array = array();
+		array_push($account_array, array('id'=>$profile_id, 'ga:webPropertyId'=>$webproperty_id));
+		echo '<pre>'.print_r( $account_array, true ).'</pre>';
+	}
 }
+
+// Exceptions that the Demo can throw.
+class demoException extends Exception {}
