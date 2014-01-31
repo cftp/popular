@@ -24,4 +24,6 @@ interface cftp_analytics_source {
 	public function displaySettings();
 
 	public function isConfigured();
+
+	public function getPageViewsForURL( $url );
 }

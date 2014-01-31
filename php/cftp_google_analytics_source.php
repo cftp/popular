@@ -22,7 +22,6 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		// must consider using an object factory and passing in as a parameter instead
 		$this->client = new Google_Client();
 
-
 		$this->client->setApprovalPrompt("force");
 		$this->client->setAccessType('offline');
 
@@ -108,6 +107,17 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			<?php
 		} else {
 			echo '<h4>Current site</h4>';
+			echo '<ul>';
+			$urls = array(
+				'/',
+				'/projects',
+				'/341/crazyflie-nano-quadcopter-notes/'
+			);
+			foreach ( $urls  as $url ) {
+				echo '<li>'.$url.' '.$this->getPageViewsForURL( $url );
+			}
+			echo '</ul>';
+
 			$current = $this->getWebProperty( home_url() );
 			if ( $current != null ) {
 				echo '<p><strong>'.$current->accountId.' '.$current->id.' '.$current->internalWebPropertyId.' '.$current->name.' at '.$current->websiteUrl.'</strong></p>';
@@ -269,6 +279,16 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			}
 		}
 		return null;
+	}
+
+	public function getPageViewsForURL( $url ) {
+		$property = $this->getWebProperty( $url );
+		if ( $property != null ) {
+			$profile = $this->getFirstProfile( $property );
+			$views = $this->getPageViewsURL( $profile, $url);
+			return $views;
+		}
+		return false;
 	}
 }
 
