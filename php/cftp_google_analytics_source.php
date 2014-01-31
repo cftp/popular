@@ -107,8 +107,26 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			<a href="<?php echo $authUrl; ?>" class="button">Activate Google Analytics</a>
 			<?php
 		} else {
+			echo '<h4>Current site</h4>';
+			$current = $this->getWebProperty( home_url() );
+			if ( $current != null ) {
+				echo '<p><strong>'.$current->accountId.' '.$current->id.' '.$current->internalWebPropertyId.' '.$current->name.' at '.$current->websiteUrl.'</strong></p>';
+				try {
+					$profile = $this->getFirstProfile( $current );
+					echo '<p><strong>'.$prop->id.' '.$prop->name.'</strong></p>';
+					$this->displayPageViewsURL( $profile, '/' );
+					$this->displayPageViewsURL( $profile, '/341/crazyflie-nano-quadcopter-notes/' );
+					$this->displayPageViewsURL( $profile, '/projects/' );
+				} catch ( Google_ServiceException $e ) {
+					print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
+				} catch ( Google_IOException $e ) {
+					print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
+				}
+			} else {
+				echo '<p>Error occurred</p>';
+			}
 
-			$props = $this->service->management_webproperties->listManagementWebproperties("~all");
+			/*$props = $this->service->management_webproperties->listManagementWebproperties("~all");
 			print "<h4>Web Properties</h4>";
 			//echo "<pre>" . print_r($props, true) . "</pre>";
 			echo '<ul>';
@@ -139,14 +157,14 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				echo $account->id.': '.$account->name;
 				echo'</li>';
 			}
-			echo '</ul>';
+			echo '</ul>';*/
 		}
 	}
 
-	private function display( $profile_id ) {
+	private function display( Google_Profile $profile ) {
 		try {
 			$data = $this->service->data_ga->get(
-				'ga:'.$profile_id,
+				'ga:'.$profile->id,
 				'2013-01-01',
 				'2014-01-01',
 				'ga:pageviews',
@@ -167,6 +185,71 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		}
 	}
 
+	private function getPageViewsURL( Google_Profile $profile, $url ) {
+		$data = $this->service->data_ga->get(
+			'ga:'.$profile->id,
+			'2013-01-01',
+			'2014-01-01',
+			'ga:pageviews',
+			array(
+				'dimensions' => 'ga:pageTitle,ga:pagePath',
+				'sort' => '-ga:pageviews',
+				'filters' => 'ga:pagePath=='.$url,
+				'max-results' => '1'));
+		return $data;
+	}
+
+	private function getProfileIDByURL( $url ) {
+		//
+	}
+
+	private function displayPageViewsURL( Google_Profile $profile, $url ) {
+		try {
+			$data = $this->getPageViewsURL( $profile, $url );
+			echo '<table>';
+			echo '<thead><tr><th>'.$data->columnHeaders[0]->name.'</th><th>'.$data->columnHeaders[1]->name.'</th><th>'.$data->columnHeaders[2]->name.'</th></tr></thead>';
+			foreach ( $data->rows as $row ) {
+				echo '<tr><td>'.$row[0].'</td><td>'.$row[1].'</td><td>'.$row[2].'</td></tr>';
+			}
+			echo '</table>';
+			//echo "<pre>" . print_r( $data, true) . "</pre>";
+		} catch( Google_ServiceException $e ) {
+			echo 'Google_ServiceException thrown with message: '.$e->getMessage();
+		}
+	}
+
+	private function getWebProperty( $url ) {
+		try {
+			$props = $this->service->management_webproperties->listManagementWebproperties("~all");
+			foreach ( $props->items as $prop ) {
+				if ( $url == $prop->websiteUrl ) {
+					return $prop;
+				}
+			}
+		} catch ( Google_ServiceException $e ) {
+			print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
+		} catch ( Google_IOException $e ) {
+			print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
+		}
+		return null;
+	}
+
+	private function getCurrentSiteWebProperty() {
+		try {
+			$props = $this->service->management_webproperties->listManagementWebproperties("~all");
+			foreach ( $props->items as $prop ) {
+				if ( home_url() == $prop->websiteUrl ) {
+					return $prop;
+				}
+			}
+		} catch ( Google_ServiceException $e ) {
+			print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
+		} catch ( Google_IOException $e ) {
+			print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
+		}
+		return null;
+	}
+
 	private function getProfileID( Google_Account $account ) {
 		$profile_id = $account->id;
 		if (empty($profile_id)) {
@@ -176,6 +259,16 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		$account_array = array();
 		array_push($account_array, array('id'=>$profile_id, 'ga:webPropertyId'=>$webproperty_id));
 		echo '<pre>'.print_r( $account_array, true ).'</pre>';
+	}
+
+	private function getFirstProfile( Google_Webproperty $property ) {
+		$profiles = $this->service->management_profiles->listManagementProfiles( $property->accountId, $property->id );
+		if ( !empty( $profiles ) ) {
+			foreach ( $profiles->items as $prop ) {
+				return $prop;
+			}
+		}
+		return null;
 	}
 }
 
