@@ -7,6 +7,7 @@ class cftp_analytics {
 
 	private $factory = null;
 	private $model = null;
+	private $cron_tasks = array();
 
 	private $setting_page = null;
 
@@ -17,10 +18,17 @@ class cftp_analytics {
 		$this->factory = $factory;
 		$this->model = $model;
 		$this->setting_page = $factory->settingPage( $model );
+		$sources = $model->getSources();
+		foreach ( $sources as $source ) {
+			$this->cron_tasks[] = $factory->cronTask( $source );
+		}
 	}
 
 	public function run() {
 		$this->setting_page->setup();
+		foreach ( $this->cron_tasks as $task ) {
+			$task->run();
+		}
 	}
 
 }

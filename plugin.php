@@ -17,7 +17,7 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 $factory = new cftp_analytics_factory();
 
 $model = new cftp_analytics_option_model();
-$analytics = new cftp_google_analytics_source();
+$analytics = $factory->googleAnalyticsSource();
 $model->addSource( $analytics );
 $plugin = new cftp_analytics( $factory, $model );
 $plugin->run();

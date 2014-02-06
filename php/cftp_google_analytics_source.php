@@ -107,18 +107,23 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			<?php
 		} else {
 			echo '<h4>Current site</h4>';
+
+			echo '<pre>'.print_R( wp_get_schedules(), true ).'</pre>';
 			echo '<ul>';
 			$urls = array(
 				'/',
 				'/projects',
-				'/341/crazyflie-nano-quadcopter-notes/'
+				'/341/crazyflie-nano-quadcopter-notes/',
+				'/528/calling-constructors/'
 			);
 			foreach ( $urls  as $url ) {
 				echo '<li>'.$url.' '.$this->getPageViewsForURL( $url );
 			}
 			echo '</ul>';
+			$id = $this->getPageViewsByPostID( 528 );
+			echo '528 id is: '.$id;
 
-			$current = $this->getWebProperty( home_url() );
+			/*$current = $this->getWebProperty( home_url() );
 			if ( $current != null ) {
 				echo '<p><strong>'.$current->accountId.' '.$current->id.' '.$current->internalWebPropertyId.' '.$current->name.' at '.$current->websiteUrl.'</strong></p>';
 				try {
@@ -134,85 +139,65 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				}
 			} else {
 				echo '<p>Error occurred</p>';
-			}
-
-			/*$props = $this->service->management_webproperties->listManagementWebproperties("~all");
-			print "<h4>Web Properties</h4>";
-			//echo "<pre>" . print_r($props, true) . "</pre>";
-			echo '<ul>';
-			foreach ( $props->items as $prop ) {
-				echo '<li style="padding:1em; margin:0 1em;">';
-				echo '<h5>'.$prop->accountId.' '.$prop->id.' '.$prop->internalWebPropertyId.' '.$prop->name.' at '.$prop->websiteUrl.'</h5>';
-				try {
-					$profiles = $this->service->management_profiles->listManagementProfiles( $prop->accountId, $prop->id );
-					echo '<ul>';
-					foreach ( $profiles->items as $prop ) {
-
-						echo '<li>'.$prop->id.' '.$prop->name;
-						$this->display( $prop->id );
-						echo '</li>';
-					}
-					echo '</ul>';
-				} catch ( Google_ServiceException $e ) {
-					print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
-				}
-				echo '</li>';
-			}
-			echo '</ul>';
-			$accounts = $this->service->management_accounts->listManagementAccounts();
-			print "<h4>Accounts</h4>";
-			echo '<ul>';
-			foreach ( $accounts->items as $account ) {
-				echo '<li>';
-				echo $account->id.': '.$account->name;
-				echo'</li>';
-			}
-			echo '</ul>';*/
+			}*/
 		}
 	}
 
-	private function display( Google_Profile $profile ) {
-		try {
-			$data = $this->service->data_ga->get(
-				'ga:'.$profile->id,
-				'2013-01-01',
-				'2014-01-01',
-				'ga:pageviews',
-				array(
-					'dimensions' => 'ga:pageTitle,ga:pagePath',
-					'sort' => '-ga:pageviews',
-					'filters' => 'ga:pagePath!=/',
-					'max-results' => '10'));
-			echo '<table>';
-			echo '<thead><tr><th>'.$data->columnHeaders[0]->name.'</th><th>'.$data->columnHeaders[1]->name.'</th><th>'.$data->columnHeaders[2]->name.'</th></tr></thead>';
-			foreach ( $data->rows as $row ) {
-				echo '<tr><td>'.$row[0].'</td><td>'.$row[1].'</td><td>'.$row[2].'</td></tr>';
-			}
-			echo '</table>';
-			//echo "<pre>" . print_r( $data, true) . "</pre>";
-		} catch( Google_ServiceException $e ) {
-			echo 'Google_ServiceException thrown with message: '.$e->getMessage();
-		}
-	}
-
+	/**
+	 * @param Google_Profile $profile
+	 * @param                $url
+	 *
+	 * @return mixed
+	 */
 	private function getPageViewsURL( Google_Profile $profile, $url ) {
+		$url = trailingslashit( $url );
+		$to = date('Y-m-d');
+		$from = strtotime( $to.' -30 day' );
+		$from = date( 'Y-m-d', $from );
 		$data = $this->service->data_ga->get(
 			'ga:'.$profile->id,
-			'2013-01-01',
-			'2014-01-01',
+			$from,
+			$to,
 			'ga:pageviews',
 			array(
 				'dimensions' => 'ga:pageTitle,ga:pagePath',
 				'sort' => '-ga:pageviews',
 				'filters' => 'ga:pagePath=='.$url,
 				'max-results' => '1'));
-		return $data;
+
+		$result = $data->totalsForAllResults['ga:pageviews'];
+		/*if ( $result == 0 ) {
+			echo '<pre>'.print_r( $data, true ).'</pre>';
+		}*/
+		return $result;
 	}
 
+	/**
+	 * @param $url
+	 *
+	 * @return null
+	 */
 	private function getProfileIDByURL( $url ) {
-		//
+		$current = $this->getWebProperty( $url );
+		if ( $current != null ) {
+			try {
+				$profile = $this->getFirstProfile( $current );
+				return $profile;
+			} catch ( Google_ServiceException $e ) {
+				print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
+			} catch ( Google_IOException $e ) {
+				print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
+			}
+		} else {
+			echo 'current is null?!';
+		}
+		return null;
 	}
 
+	/**
+	 * @param Google_Profile $profile
+	 * @param                $url
+	 */
 	private function displayPageViewsURL( Google_Profile $profile, $url ) {
 		try {
 			$data = $this->getPageViewsURL( $profile, $url );
@@ -228,7 +213,15 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		}
 	}
 
+	/**
+	 * @param $url
+	 *
+	 * @return null
+	 */
 	private function getWebProperty( $url ) {
+		if ( strpos( $url,'/') == 0 ) {
+			$url = site_url();
+		}
 		try {
 			$props = $this->service->management_webproperties->listManagementWebproperties("~all");
 			foreach ( $props->items as $prop ) {
@@ -236,6 +229,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 					return $prop;
 				}
 			}
+			echo 'not found property..';
 		} catch ( Google_ServiceException $e ) {
 			print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
 		} catch ( Google_IOException $e ) {
@@ -244,33 +238,11 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		return null;
 	}
 
-	private function getCurrentSiteWebProperty() {
-		try {
-			$props = $this->service->management_webproperties->listManagementWebproperties("~all");
-			foreach ( $props->items as $prop ) {
-				if ( home_url() == $prop->websiteUrl ) {
-					return $prop;
-				}
-			}
-		} catch ( Google_ServiceException $e ) {
-			print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
-		} catch ( Google_IOException $e ) {
-			print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
-		}
-		return null;
-	}
-
-	private function getProfileID( Google_Account $account ) {
-		$profile_id = $account->id;
-		if (empty($profile_id)) {
-			return false;
-		}
-
-		$account_array = array();
-		array_push($account_array, array('id'=>$profile_id, 'ga:webPropertyId'=>$webproperty_id));
-		echo '<pre>'.print_r( $account_array, true ).'</pre>';
-	}
-
+	/**
+	 * @param Google_Webproperty $property
+	 *
+	 * @return null
+	 */
 	private function getFirstProfile( Google_Webproperty $property ) {
 		$profiles = $this->service->management_profiles->listManagementProfiles( $property->accountId, $property->id );
 		if ( !empty( $profiles ) ) {
@@ -281,14 +253,29 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		return null;
 	}
 
+	/**
+	 * @param $url
+	 *
+	 * @return bool|mixed|string
+	 */
 	public function getPageViewsForURL( $url ) {
-		$property = $this->getWebProperty( $url );
-		if ( $property != null ) {
-			$profile = $this->getFirstProfile( $property );
+		$profile = $this->getProfileIDByURL( $url );
+		if ( $profile != null ) {
 			$views = $this->getPageViewsURL( $profile, $url);
 			return $views;
+		} else {
+			return 'unknown profile?';
 		}
 		return false;
+	}
+
+	/**
+	 * @param $post_id
+	 */
+	public function getPageViewsByPostID( $post_id ) {
+		$permalink = get_permalink( $post_id );
+		$permalink = str_replace( site_url(), '', $permalink );
+		return $this->getPageViewsForURL( $permalink );
 	}
 }
 
