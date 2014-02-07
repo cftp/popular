@@ -26,4 +26,12 @@ class cftp_analytics_factory {
 	public function twitterSharesSource() {
 		return new cftp_twitter_source();
 	}
+
+	public function facebookLikesSource() {
+		return new cftp_facebook_likes_source();
+	}
+
+	public function facebookSharesSource() {
+		return new cftp_facebook_shares_source();
+	}
 }
