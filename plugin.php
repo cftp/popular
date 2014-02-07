@@ -19,5 +19,7 @@ $factory = new cftp_analytics_factory();
 $model = new cftp_analytics_option_model();
 $analytics = $factory->googleAnalyticsSource();
 $model->addSource( $analytics );
+$twitter = $factory->twitterSharesSource();
+$model->addSource( $twitter );
 $plugin = new cftp_analytics( $factory, $model );
 $plugin->run();

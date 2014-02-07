@@ -22,4 +22,8 @@ class cftp_analytics_factory {
 	public function googleAnalyticsSource() {
 		return new cftp_google_analytics_source();
 	}
+
+	public function twitterSharesSource() {
+		return new cftp_twitter_source();
+	}
 }

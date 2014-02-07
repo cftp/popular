@@ -18,6 +18,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 *
 	 */
 	public function __construct() {
+		if ( is_admin() ) {
+			add_filter('manage_posts_columns', array( $this, 'columns_head') );
+			add_action('manage_posts_custom_column', array( $this, 'columns_content' ), 10, 2);
+			add_filter( 'manage_edit-post_sortable_columns', array( $this, 'column_register_sortable' ) );
+		}
+
 		// @TODO: there's something inherently wrong about creating the google client in here
 		// must consider using an object factory and passing in as a parameter instead
 		$this->client = new Google_Client();
@@ -55,6 +61,47 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		}
 		if ( !empty( $token ) ) {
 			$this->client->setAccessToken( $token );
+		}
+
+		add_filter( 'kqw_orderby_options', array( $this, 'query_widget_order' ) );
+		add_filter( 'request', array( $this, 'orderby' ) );
+	}
+
+	function query_widget_order( $orders ) {
+		$orders['google_last30'] = 'GA Page Views last ~30 days';
+		return $orders;
+	}
+
+	function orderby( $vars ) {
+		if ( isset( $vars['orderby'] ) && 'google_last30' == $vars['orderby'] ) {
+			$vars = array_merge( $vars, array(
+				'meta_key' => 'cfto_popular_views_googleanalytics',
+				'orderby' => 'meta_value_num'
+			) );
+		}
+
+		return $vars;
+	}
+
+	function column_register_sortable( $columns ) {
+		$columns['google_last30'] = 'google_last30';
+		return $columns;
+	}
+
+	function columns_head($defaults) {
+		$defaults['google_last30'] = 'GA Page Views ~30 days';
+		return $defaults;
+	}
+
+	function columns_content( $column_name, $post_id ) {
+		if ( $column_name == 'google_last30' ) {
+			$source_name = $this->sourceName();
+			$views = get_post_meta( $post_id, 'cfto_popular_views_'.$source_name, true );
+			if ( !empty( $views ) ) {
+				echo $views;
+			} else {
+				echo 'pending';
+			}
 		}
 	}
 
@@ -108,7 +155,10 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		} else {
 			echo '<h4>Current site</h4>';
 
-			echo '<pre>'.print_R( wp_get_schedules(), true ).'</pre>';
+			?>
+			<a class="button disabled" disabled >Deactivate Google Analytics</a>
+			<?php
+
 			echo '<ul>';
 			$urls = array(
 				'/',

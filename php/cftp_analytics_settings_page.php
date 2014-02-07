@@ -21,31 +21,8 @@ class cftp_analytics_settings_page {
 		if ( is_admin() ){
 			add_action( 'admin_menu', array( $this, 'add_menu' ) );
 			add_action( 'admin_init', array( $this, 'register_settings' ) );
-
-			add_filter('manage_posts_columns', array( $this, 'columns_head') );
-			add_action('manage_posts_custom_column', array( $this, 'columns_content' ), 10, 2);
-
 		} else {
 			// non-admin enqueues, actions, and filters
-		}
-	}
-
-	function columns_head($defaults) {
-		$defaults['popular_views'] = 'Page Views ~30 days';
-		return $defaults;
-	}
-
-	function columns_content( $column_name, $post_id ) {
-		if ($column_name == 'popular_views') {
-			foreach ( $this->model->getSources() as $source ) {
-				$source_name = $source->sourceName();
-				$views = get_post_meta( $post_id, 'cfto_popular_views_'.$source_name, true );
-				if ( !empty( $views ) ) {
-					echo $views;
-				} else {
-					echo 'unknown';
-				}
-			}
 		}
 	}
 

@@ -26,6 +26,7 @@ class cftp_analytics_cron_task {
 	}
 
 	public function run() {
+		$source_name = $this->source->sourceName();
 		add_filter( 'cron_schedules', array( $this, 'add_intervals' ) );
 		add_action( 'cftp_popular_task_'.$source_name, array( $this, 'task' ) );
 		$source_name = $this->source->sourceName();
@@ -36,7 +37,6 @@ class cftp_analytics_cron_task {
 	}
 
 	public function task() {
-		return;
 		$source_name = $this->source->sourceName();
 		$to = date('Y-m-d');
 		$from = strtotime( $to.' -30 day' );
