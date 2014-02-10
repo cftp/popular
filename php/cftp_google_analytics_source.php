@@ -155,43 +155,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			<a href="<?php echo $authUrl; ?>" class="button">Activate Google Analytics</a>
 			<?php
 		} else {
-			echo '<h4>Current site</h4>';
-
 			?>
 			<a class="button disabled" disabled >Deactivate Google Analytics</a>
 			<?php
-
-			echo '<ul>';
-			$urls = array(
-				'/',
-				'/projects',
-				'/341/crazyflie-nano-quadcopter-notes/',
-				'/528/calling-constructors/'
-			);
-			foreach ( $urls  as $url ) {
-				echo '<li>'.$url.' '.$this->getPageViewsForURL( $url );
-			}
-			echo '</ul>';
-			$id = $this->getPageViewsByPostID( 528 );
-			echo '528 id is: '.$id;
-
-			/*$current = $this->getWebProperty( home_url() );
-			if ( $current != null ) {
-				echo '<p><strong>'.$current->accountId.' '.$current->id.' '.$current->internalWebPropertyId.' '.$current->name.' at '.$current->websiteUrl.'</strong></p>';
-				try {
-					$profile = $this->getFirstProfile( $current );
-					echo '<p><strong>'.$prop->id.' '.$prop->name.'</strong></p>';
-					$this->displayPageViewsURL( $profile, '/' );
-					$this->displayPageViewsURL( $profile, '/341/crazyflie-nano-quadcopter-notes/' );
-					$this->displayPageViewsURL( $profile, '/projects/' );
-				} catch ( Google_ServiceException $e ) {
-					print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
-				} catch ( Google_IOException $e ) {
-					print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
-				}
-			} else {
-				echo '<p>Error occurred</p>';
-			}*/
 		}
 	}
 
@@ -218,9 +184,6 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				'max-results' => '1'));
 
 		$result = $data->totalsForAllResults['ga:pageviews'];
-		/*if ( $result == 0 ) {
-			echo '<pre>'.print_r( $data, true ).'</pre>';
-		}*/
 		return $result;
 	}
 
@@ -244,25 +207,6 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			echo 'current is null?!';
 		}
 		return null;
-	}
-
-	/**
-	 * @param Google_Profile $profile
-	 * @param                $url
-	 */
-	private function displayPageViewsURL( Google_Profile $profile, $url ) {
-		try {
-			$data = $this->getPageViewsURL( $profile, $url );
-			echo '<table>';
-			echo '<thead><tr><th>'.$data->columnHeaders[0]->name.'</th><th>'.$data->columnHeaders[1]->name.'</th><th>'.$data->columnHeaders[2]->name.'</th></tr></thead>';
-			foreach ( $data->rows as $row ) {
-				echo '<tr><td>'.$row[0].'</td><td>'.$row[1].'</td><td>'.$row[2].'</td></tr>';
-			}
-			echo '</table>';
-			//echo "<pre>" . print_r( $data, true) . "</pre>";
-		} catch( Google_ServiceException $e ) {
-			echo 'Google_ServiceException thrown with message: '.$e->getMessage();
-		}
 	}
 
 	/**

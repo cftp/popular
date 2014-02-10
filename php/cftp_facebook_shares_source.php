@@ -96,7 +96,6 @@ class cftp_facebook_shares_source implements cftp_analytics_source {
 	 */
 	public function displaySettings() {
 		echo '<p>Facebook Shares requires no configuration</p>';
-		echo 'Facebook Shares:'.$this->getPageViewsForURL('http://www.tomjn.com/398/add_action-considered-harmful/');
 	}
 
 	/**
