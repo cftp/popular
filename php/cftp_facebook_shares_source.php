@@ -38,7 +38,7 @@ class cftp_facebook_shares_source implements cftp_analytics_source {
 	}
 
 	function columns_head($defaults) {
-		$defaults['facebook_shares'] = 'Facebook Shares';
+		$defaults['facebook_shares'] = 'FB Shares';
 		return $defaults;
 	}
 
@@ -46,10 +46,12 @@ class cftp_facebook_shares_source implements cftp_analytics_source {
 		if ( $column_name == 'facebook_shares' ) {
 			$source_name = $this->sourceName();
 			$views = get_post_meta( $post_id, 'cfto_popular_views_'.$source_name, true );
-			if ( !empty( $views ) ) {
+			if ( $views === '' ) {
+				echo 'pending';
+			} else  if ( is_numeric( $views ) ) {
 				echo $views;
 			} else {
-				echo 'pending';
+				echo 'n/a';
 			}
 		}
 	}

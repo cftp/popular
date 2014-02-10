@@ -67,7 +67,7 @@ class cftp_analytics_cron_task {
 				$query->the_post();
 				$views = $this->source->getPageViewsByPostID( $post->ID );
 
-				if ( is_numeric( $views ) ) {
+				if ( $views !== false ) {
 					update_post_meta( $post->ID,'cfto_popular_views_'.$source_name, $views );
 					update_post_meta( $post->ID,'cfto_popular_last_updated_'.$source_name, date( 'Y-m-d') );
 				}

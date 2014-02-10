@@ -89,7 +89,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	function columns_head($defaults) {
-		$defaults['google_last30'] = 'GA Page Views ~30 days';
+		$defaults['google_last30'] = 'Page Views ~30 days';
 		return $defaults;
 	}
 
@@ -97,10 +97,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		if ( $column_name == 'google_last30' ) {
 			$source_name = $this->sourceName();
 			$views = get_post_meta( $post_id, 'cfto_popular_views_'.$source_name, true );
-			if ( !empty( $views ) ) {
+			if ( $views === '' ) {
+				echo 'pending';
+			} else  if ( is_numeric( $views ) ) {
 				echo $views;
 			} else {
-				echo 'pending';
+				echo 'n/a';
 			}
 		}
 	}
@@ -313,8 +315,6 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		if ( $profile != null ) {
 			$views = $this->getPageViewsURL( $profile, $url);
 			return $views;
-		} else {
-			return 'unknown profile?';
 		}
 		return false;
 	}
@@ -329,5 +329,3 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 }
 
-// Exceptions that the Demo can throw.
-class demoException extends Exception {}
