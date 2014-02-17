@@ -13,10 +13,5 @@
         "composer/installers": "~1.0",
         "php": ">=5.3",
 		"google/api-client": "dev-master"
-    },
-    "autoload"    : {
-        "classmap": [
-            "php/"
-        ]
     }
 }
