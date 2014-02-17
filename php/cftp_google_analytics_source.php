@@ -78,7 +78,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	public function getRedirectURL() {
-		return admin_url().'/options-general.php?page=cftp_popular_settings_page';
+		return admin_url().'options-general.php?page=cftp_popular_settings_page';
 	}
 
 	function query_widget_order( $orders ) {
