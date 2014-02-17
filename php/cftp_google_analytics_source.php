@@ -149,7 +149,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		);
 		add_settings_field(
 			$option_name.'_client_id', // ID
-			'GA Client ID', // Title
+			'Google Analytics Client ID', // Title
 			array( $this, 'displayClientID' ), // Callback
 			$page, // Page
 			$section_id // Section
@@ -192,6 +192,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	public function displayRedirectURL() {
 		?>
 		<input class="widefat" name="cftp_popular_google_analytics_client_redirect_url" value="<?php echo $this->getRedirectURL(); ?>" disabled />
+		<p class="description">You'll need to create an API ID and secret, save them here, then use the above redirect URL in the google cloud panel before authenticating</p>
 		<?php
 	}
 
