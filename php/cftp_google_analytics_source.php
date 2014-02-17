@@ -9,6 +9,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 * @var Google_Client|null
 	 */
 	private $client = null;
+
 	/**
 	 * @var Google_AnalyticsService|null
 	 */
@@ -19,8 +20,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 */
 	public function __construct() {
 		if ( is_admin() ) {
-			add_filter('manage_posts_columns', array( $this, 'columns_head') );
-			add_action('manage_posts_custom_column', array( $this, 'columns_content' ), 10, 2);
+			add_filter( 'manage_posts_columns', array( $this, 'columns_head') );
+			add_action( 'manage_posts_custom_column', array( $this, 'columns_content' ), 10, 2);
 			add_filter( 'manage_edit-post_sortable_columns', array( $this, 'column_register_sortable' ) );
 		}
 
@@ -35,13 +36,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 
 		// Visit https://code.google.com/apis/console?api=analytics to generate your
 		// client id, client secret, and to register your redirect uri.
-		$this->client->setClientId('428049761702-ns5qdmhmstupbpi22oo9iokohq153m5p.apps.googleusercontent.com');
-		$this->client->setClientSecret('Nl8codQLU7JiuX57Rm6RLasy');
-		$this->client->setRedirectUri('http://www.tomjn.com/wp-admin/options-general.php?page=cftp_popular_settings_page');
-		//$this->client->setDeveloperKey('insert_your_developer_key');
+		$this->client->setClientId( $this->getClientID() );
+		$this->client->setClientSecret( $this->getClientSecret() );
+		$this->client->setRedirectUri( $this->getRedirectURL() );
 
 		$this->client->setScopes( array( 'https://www.googleapis.com/auth/analytics.readonly' ) );
-		$this->client->setUseObjects(true);
+		$this->client->setUseObjects(true );
 		$this->service = new Google_AnalyticsService( $this->client );
 
 		$token = '';
@@ -65,6 +65,20 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 
 		add_filter( 'kqw_orderby_options', array( $this, 'query_widget_order' ) );
 		add_filter( 'request', array( $this, 'orderby' ) );
+	}
+
+	public function getClientID() {
+		//return '428049761702-ns5qdmhmstupbpi22oo9iokohq153m5p.apps.googleusercontent.com';
+		return get_option('cftp_popular_google_analytics_client_id');
+	}
+
+	public function getClientSecret() {
+		//return 'Nl8codQLU7JiuX57Rm6RLasy';
+		return get_option('cftp_popular_google_analytics_client_secret');
+	}
+
+	public function getRedirectURL() {
+		return admin_url().'/options-general.php?page=cftp_popular_settings_page';
 	}
 
 	function query_widget_order( $orders ) {
@@ -125,6 +139,35 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$option_group, // Option group
 			$option_name // Option name
 		);
+		register_setting(
+			$option_group, // Option group
+			$option_name.'_client_id' // Option name
+		);
+		register_setting(
+			$option_group, // Option group
+			$option_name.'_client_secret' // Option name
+		);
+		add_settings_field(
+			$option_name.'_client_id', // ID
+			'GA Client ID', // Title
+			array( $this, 'displayClientID' ), // Callback
+			$page, // Page
+			$section_id // Section
+		);
+		add_settings_field(
+			$option_name.'_client_secret', // ID
+			'Google Analytics Client Secret', // Title
+			array( $this, 'displayClientSecret' ), // Callback
+			$page, // Page
+			$section_id // Section
+		);
+		add_settings_field(
+			$option_name.'_redirect_field', // ID
+			'Google Analytics Client Redirect URL', // Title
+			array( $this, 'displayRedirectURL' ), // Callback
+			$page, // Page
+			$section_id // Section
+		);
 
 		add_settings_field(
 			$option_name, // ID
@@ -133,6 +176,23 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$page, // Page
 			$section_id // Section
 		);
+
+	}
+
+	public function displayClientID() {
+		?>
+		<input class="widefat" name="cftp_popular_google_analytics_client_id" value="<?php echo $this->getClientID(); ?>"/>
+		<?php
+	}
+	public function displayClientSecret() {
+		?>
+		<input class="widefat" name="cftp_popular_google_analytics_client_secret" value="<?php echo $this->getClientSecret(); ?>"/>
+		<?php
+	}
+	public function displayRedirectURL() {
+		?>
+		<input class="widefat" name="cftp_popular_google_analytics_client_redirect_url" value="<?php echo $this->getRedirectURL(); ?>" disabled />
+		<?php
 	}
 
 	/**
@@ -153,11 +213,11 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$authUrl = $this->client->createAuthUrl();
 			?>
 			<a href="<?php echo $authUrl; ?>" class="button">Activate Google Analytics</a>
-			<?php
+		<?php
 		} else {
 			?>
 			<a class="button disabled" disabled >Deactivate Google Analytics</a>
-			<?php
+		<?php
 		}
 	}
 
