@@ -27,22 +27,39 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 
 		// @TODO: there's something inherently wrong about creating the google client in here
 		// must consider using an object factory and passing in as a parameter instead
-		$this->client = new Google_Client();
+		if ( isset( $_GET['code'] ) ) {
+			$this->initialiseAPIs();
+		}
 
-		$this->client->setApprovalPrompt("force");
-		$this->client->setAccessType('offline');
+		add_filter( 'kqw_orderby_options', array( $this, 'query_widget_order' ) );
+		add_filter( 'request', array( $this, 'orderby' ) );
+	}
 
-		$this->client->setApplicationName( "CFTP Popular" );
+	public function initialiseAPIs() {
+		if ( $this->client != null ) {
+			return;
+		}
 
-		// Visit https://code.google.com/apis/console?api=analytics to generate your
-		// client id, client secret, and to register your redirect uri.
-		$this->client->setClientId( $this->getClientID() );
-		$this->client->setClientSecret( $this->getClientSecret() );
-		$this->client->setRedirectUri( $this->getRedirectURL() );
+		try {
+			$this->client = new Google_Client();
 
-		$this->client->setScopes( array( 'https://www.googleapis.com/auth/analytics.readonly' ) );
-		$this->client->setUseObjects(true );
-		$this->service = new Google_AnalyticsService( $this->client );
+			$this->client->setApprovalPrompt("force");
+			$this->client->setAccessType('offline');
+
+			$this->client->setApplicationName( "CFTP Popular" );
+
+			// Visit https://code.google.com/apis/console?api=analytics to generate your
+			// client id, client secret, and to register your redirect uri.
+			$this->client->setClientId( $this->getClientID() );
+			$this->client->setClientSecret( $this->getClientSecret() );
+			$this->client->setRedirectUri( $this->getRedirectURL() );
+
+			$this->client->setScopes( array( 'https://www.googleapis.com/auth/analytics.readonly' ) );
+			$this->client->setUseObjects(true );
+			$this->service = new Google_AnalyticsService( $this->client );
+		} catch ( Google_IOException $e ) {
+			wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google IO Exception thrown with message: '.$e->getMessage());
+		}
 
 		$token = '';
 
@@ -63,8 +80,6 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$this->client->setAccessToken( $token );
 		}
 
-		add_filter( 'kqw_orderby_options', array( $this, 'query_widget_order' ) );
-		add_filter( 'request', array( $this, 'orderby' ) );
 	}
 
 	public function getClientID() {
@@ -200,7 +215,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 * @return bool
 	 */
 	public function isConfigured() {
-		if ( $this->client->getAccessToken() ) {
+
+		$token = get_option( 'cftp_popular_ga_token' );
+		if ( !empty( $token ) ) {
 			return true;
 		}
 		return false;
@@ -211,10 +228,14 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 */
 	public function displaySettings() {
 		if ( !$this->isConfigured() ) {
-			$authUrl = $this->client->createAuthUrl();
-			?>
-			<a href="<?php echo $authUrl; ?>" class="button">Activate Google Analytics</a>
-		<?php
+			try {
+				$authUrl = $this->client->createAuthUrl();
+				?>
+				<a href="<?php echo $authUrl; ?>" class="button">Activate Google Analytics</a>
+				<?php
+			} catch ( Google_IOException $e ) {
+				wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google IO Exception thrown with message: '.$e->getMessage());
+			}
 		} else {
 			?>
 			<a class="button disabled" disabled >Deactivate Google Analytics</a>
@@ -229,6 +250,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 * @return mixed
 	 */
 	private function getPageViewsURL( Google_Profile $profile, $url ) {
+		$this->initialiseAPIs();
 		$url = trailingslashit( $url );
 		$to = date('Y-m-d');
 		$from = strtotime( $to.' -30 day' );
@@ -242,7 +264,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				'dimensions' => 'ga:pageTitle,ga:pagePath',
 				'sort' => '-ga:pageviews',
 				'filters' => 'ga:pagePath=='.$url,
-				'max-results' => '1'));
+				'max-results' => '1'
+			)
+		);
 
 		$result = $data->totalsForAllResults['ga:pageviews'];
 		return $result;
@@ -254,6 +278,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 * @return null
 	 */
 	private function getProfileIDByURL( $url ) {
+		$this->initialiseAPIs();
 		$current = $this->getWebProperty( $url );
 		if ( $current != null ) {
 			try {
@@ -276,6 +301,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 * @return null
 	 */
 	private function getWebProperty( $url ) {
+		$this->initialiseAPIs();
 		if ( strpos( $url,'/') == 0 ) {
 			$url = site_url();
 		}
@@ -301,6 +327,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 * @return null
 	 */
 	private function getFirstProfile( Google_Webproperty $property ) {
+		$this->initialiseAPIs();
 		$profiles = $this->service->management_profiles->listManagementProfiles( $property->accountId, $property->id );
 		if ( !empty( $profiles ) ) {
 			foreach ( $profiles->items as $prop ) {
@@ -316,6 +343,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 * @return bool|mixed|string
 	 */
 	public function getPageViewsForURL( $url ) {
+		$this->initialiseAPIs();
 		$profile = $this->getProfileIDByURL( $url );
 		if ( $profile != null ) {
 			$views = $this->getPageViewsURL( $profile, $url);
@@ -328,6 +356,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 * @param $post_id
 	 */
 	public function getPageViewsByPostID( $post_id ) {
+		$this->initialiseAPIs();
 		$permalink = get_permalink( $post_id );
 		$permalink = str_replace( site_url(), '', $permalink );
 		return $this->getPageViewsForURL( $permalink );
