@@ -25,6 +25,7 @@ require_once( 'php/cftp_google_analytics_source.php');
 require_once( 'php/cftp_facebook_likes_source.php');
 require_once( 'php/cftp_facebook_shares_source.php');
 require_once( 'php/cftp_twitter_source.php');
+require_once( 'php/cftp_total_shares_source.php');
 
 
 $factory = new cftp_analytics_factory();
@@ -38,5 +39,7 @@ $fblikes = $factory->facebookLikesSource();
 $model->addSource( $fblikes );
 $fbshares = $factory->facebookSharesSource();
 $model->addSource( $fbshares );
+$totalshares = $factory->totalSharesSource();
+$model->addSource( $totalshares );
 $popular = new cftp_analytics( $factory, $model );
 $popular->run();

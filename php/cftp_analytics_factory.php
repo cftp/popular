@@ -34,4 +34,8 @@ class cftp_analytics_factory {
 	public function facebookSharesSource() {
 		return new cftp_facebook_shares_source();
 	}
+
+	public function totalSharesSource() {
+		return new cftp_total_shares_source();
+	}
 }
