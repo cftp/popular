@@ -55,7 +55,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$this->client->setRedirectUri( $this->getRedirectURL() );
 
 			$this->client->setScopes( array( 'https://www.googleapis.com/auth/analytics.readonly' ) );
-			$this->client->setUseObjects(true );
+			// fatal errors in newer versions of the library
+			//$this->client->setUseObjects(true );
 			$this->service = new Google_AnalyticsService( $this->client );
 		} catch ( Google_IOException $e ) {
 			wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google IO Exception thrown with message: '.$e->getMessage());
@@ -362,4 +363,3 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		return $this->getPageViewsForURL( $permalink );
 	}
 }
-
