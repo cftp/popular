@@ -1,7 +1,7 @@
 {
     "name": "cftp/popular",
     "description": "Provides analytics data for posts and articles",
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "type": "wordpress-plugin",
     "license": "GPL-2.0+",
     "authors": [
