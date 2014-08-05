@@ -12,6 +12,6 @@
     "require": {
         "composer/installers": "~1.0",
         "php": ">=5.3",
-        "google/apiclient": "dev-master#eb5934d58761f1a8575e6df6de02fdce89dd89d2"
+        "google/apiclient": "1.0.4-beta"
     }
 }

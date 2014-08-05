@@ -36,6 +36,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	public function initialiseAPIs() {
+
 		if ( $this->client != null ) {
 			return;
 		}
@@ -55,10 +56,11 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$this->client->setRedirectUri( $this->getRedirectURL() );
 
 			$this->client->setScopes( array( 'https://www.googleapis.com/auth/analytics.readonly' ) );
-			// fatal errors in newer versions of the library
-			//$this->client->setUseObjects(true );
-			$this->service = new Google_AnalyticsService( $this->client );
-		} catch ( Google_IOException $e ) {
+
+			$this->service = new Google_Service_Analytics( $this->client );
+		} catch ( Google_IO_Exception $e ) {
+			wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google IO Exception thrown with message: '.$e->getMessage());
+		} catch ( Google_Service_Exception $e ) {
 			wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google IO Exception thrown with message: '.$e->getMessage());
 		}
 
@@ -66,12 +68,15 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 
 		if ( isset( $_GET['code'] ) ) {
 			try {
-				$this->client->authenticate();
+				$code = $_GET['code'];
+				$this->client->authenticate( $code );
 				$newtoken = $this->client->getAccessToken();
 				update_option('cftp_popular_ga_token', $newtoken );
 				$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
 				wp_safe_redirect( $redirect );
-			} catch ( Google_IOException $e ) {
+			} catch ( Google_IO_Exception $e ) {
+				wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google IO Exception thrown with message: '.$e->getMessage());
+			} catch ( Google_Service_Exception $e ) {
 				wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google IO Exception thrown with message: '.$e->getMessage());
 			}
 		} else {
