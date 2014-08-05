@@ -233,7 +233,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 *
 	 */
 	public function displaySettings() {
+		$this->initialiseAPIs();
 		if ( !$this->isConfigured() ) {
+
 			try {
 				$authUrl = $this->client->createAuthUrl();
 				?>
