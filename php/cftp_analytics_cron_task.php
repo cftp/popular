@@ -25,6 +25,7 @@ class cftp_analytics_cron_task {
 		return $schedules;
 	}
 
+	// schedule tasks
 	public function run() {
 		$source_name = $this->source->sourceName();
 		add_filter( 'cron_schedules', array( $this, 'add_intervals' ) );
@@ -36,6 +37,7 @@ class cftp_analytics_cron_task {
 		//add_action( 'admin_init', array( $this, 'task' ) );
 	}
 
+	// actually run the task
 	public function task() {
 		$source_name = $this->source->sourceName();
 		$to = date('Y-m-d');
@@ -47,11 +49,17 @@ class cftp_analytics_cron_task {
 			'post_type' => 'any',
 			'meta_query' => array( // WordPress has all the results, now, return only the events after today's date
 				'relation' => 'OR',
+				// either fine posts that haven't been analysed at all
 				array(
 					'key' => 'cfto_popular_last_updated_'.$source_name,
 					'compare' => 'NOT EXISTS',
 					'value' => ''
 				),
+				// or filter by date
+
+				// @todo For some reason WP_Query won't find new posts (w/o existing post meta) unless I comment this out?
+				// Also shouldn't it be last_updated <= $to (now), not <= $from (1 month ago)? William, 2014-08-16
+
 				array(
 					'key' => 'cfto_popular_last_updated_'.$source_name, // Check the start date field
 					'value' => $from, // Set today's date (note the similar format)

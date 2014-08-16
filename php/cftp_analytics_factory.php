@@ -38,4 +38,13 @@ class cftp_analytics_factory {
 	public function totalSharesSource() {
 		return new cftp_total_shares_source();
 	}
+
+	public function decayViewsSource() {
+		return new cftp_decay_views_source();
+	}
+
+	public function decaySharesSource() {
+		return new cftp_decay_shares_source();
+	}
+
 }
