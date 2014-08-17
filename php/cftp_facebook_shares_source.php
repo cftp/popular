@@ -7,8 +7,8 @@ class cftp_facebook_shares_source implements cftp_analytics_source {
 	 */
 	public function __construct() {
 		if ( is_admin() ) {
-			add_filter('manage_posts_columns', array( $this, 'columns_head') );
-			add_action('manage_posts_custom_column', array( $this, 'columns_content' ), 10, 2);
+			add_filter( 'manage_posts_columns', array( $this, 'columns_head' ) );
+			add_action( 'manage_posts_custom_column', array( $this, 'columns_content' ), 10, 2 );
 			add_filter( 'manage_edit-post_sortable_columns', array( $this, 'column_register_sortable' ) );
 		}
 
@@ -18,6 +18,7 @@ class cftp_facebook_shares_source implements cftp_analytics_source {
 
 	function query_widget_order( $orders ) {
 		$orders['facebook_shares'] = 'Facebook Shares';
+
 		return $orders;
 	}
 
@@ -25,7 +26,7 @@ class cftp_facebook_shares_source implements cftp_analytics_source {
 		if ( isset( $vars['orderby'] ) && 'facebook_shares' == $vars['orderby'] ) {
 			$vars = array_merge( $vars, array(
 				'meta_key' => 'cfto_popular_views_facebook_shares',
-				'orderby' => 'meta_value_num'
+				'orderby'  => 'meta_value_num'
 			) );
 		}
 
@@ -34,22 +35,41 @@ class cftp_facebook_shares_source implements cftp_analytics_source {
 
 	function column_register_sortable( $columns ) {
 		$columns['facebook_shares'] = 'facebook_shares';
+
 		return $columns;
 	}
 
-	function columns_head($defaults) {
+	function columns_head( $defaults ) {
 		$defaults['facebook_shares'] = 'FB Shares';
+
 		return $defaults;
 	}
 
 	function columns_content( $column_name, $post_id ) {
 		if ( $column_name == 'facebook_shares' ) {
 			$source_name = $this->sourceName();
-			$views = get_post_meta( $post_id, 'cfto_popular_views_'.$source_name, true );
+
+			if ( in_array('picshare/picshare.php',get_option('active_plugins')) ) {
+				$ps_stats = get_post_meta( $post_id, 'cfto_popular_picshare_facebook', true );
+				$views    = isset( $ps_stats['total']['share_count'] ) ? $ps_stats['total']['share_count'] : '';
+			} else {
+				$views = get_post_meta( $post_id, 'cfto_popular_views_' . $source_name, true );
+			}
+
 			if ( $views === '' ) {
 				echo 'pending';
-			} else  if ( is_numeric( $views ) ) {
-				echo $views;
+			} else if ( is_numeric( $views ) ) {
+
+				if ( in_array('picshare/picshare.php',get_option('active_plugins')) ) {
+					// Link to full stats breakdown (served by Picshare but loaded from post_meta)
+					printf( '%d <a title="View full stats" href="%s"><span class="dashicons dashicons-chart-bar"></span></a>',
+						$views,
+						admin_url( 'options-general.php?page=picshare-setting-admin&post-stats-cftp-popular=' . $post_id )
+					);
+				} else {
+					// Just a number
+					echo $views;
+				}
 			} else {
 				echo 'n/a';
 			}
@@ -104,14 +124,16 @@ class cftp_facebook_shares_source implements cftp_analytics_source {
 	 * @return bool|mixed|string
 	 */
 	public function getPageViewsForURL( $url ) {
-		$api = 'http://api.facebook.com/restserver.php?method=links.getStats&format=json&urls=';
-		$response = wp_remote_get( $api.$url );
-		if ( !is_wp_error( $response ) ) {
+		$api      = 'http://api.facebook.com/restserver.php?method=links.getStats&format=json&urls=';
+		$response = wp_remote_get( $api . $url );
+		if ( ! is_wp_error( $response ) ) {
 			if ( $response['response']['code'] == 200 ) {
 				$json = json_decode( $response['body'], true );
+
 				return $json[0]['share_count'];
 			}
 		}
+
 		return false;
 	}
 
@@ -120,6 +142,7 @@ class cftp_facebook_shares_source implements cftp_analytics_source {
 	 */
 	public function getPageViewsByPostID( $post_id ) {
 		$permalink = get_permalink( $post_id );
+
 		return $this->getPageViewsForURL( $permalink );
 	}
 }

@@ -93,10 +93,19 @@ class cftp_total_shares_source implements cftp_analytics_source {
 	 * @param $post_id
 	 */
 	public function getPageViewsByPostID( $post_id ) {
-		// Changed this back to the version with the typo in so stats are visible. William 2014-08-16
-		$facebook_likes = get_post_meta( $post_id, 'cfto_popular_views_facebook_likes' , true );
-		$facebook_shares = get_post_meta( $post_id, 'cfto_popular_views_facebook_shares' , true );
+		// Changed this back to the version with typo in post_meta key so stats are visible. William 2014-08-16
+
 		$twitter_shares = get_post_meta( $post_id, 'cfto_popular_views_twitter_shares' , true );
+
+		if ( in_array( 'picshare/picshare.php', get_option( 'active_plugins' ) ) ) {
+			$ps_stats        = get_post_meta( $post_id, 'cfto_popular_picshare_facebook', true );
+			$facebook_likes  = isset( $ps_stats['total']['like_count'] ) ? $ps_stats['total']['like_count'] : 0;
+			$facebook_shares = isset( $ps_stats['total']['share_count'] ) ? $ps_stats['total']['share_count'] : 0;
+		} else {
+			$facebook_likes  = get_post_meta( $post_id, 'cfto_popular_views_facebook_likes', true );
+			$facebook_shares = get_post_meta( $post_id, 'cfto_popular_views_facebook_shares', true );
+		}
+
 		if ( empty( $facebook_likes ) ) {
 			$facebook_likes = 0;
 		}

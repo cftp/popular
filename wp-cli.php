@@ -68,8 +68,12 @@ class Popular_Command extends WP_CLI_Command {
 				$queue[] = 'totalSharesSource';
 				$queue[] = 'decaySharesSource';
 				break;
+			case 'total':
+				$queue[] = 'totalSharesSource';
+				break;
 			default:
 				echo "Unknown source.\n";
+
 				return false;
 				break;
 		}
@@ -78,6 +82,35 @@ class Popular_Command extends WP_CLI_Command {
 			echo( $this->factory->cronTask( $this->factory->{$v}() )->task() );
 		}
 
+	}
+
+	/**
+	 * For debugging. Test data collection on a single post.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <source>
+	 * : facebook|twitter
+	 * <post_id>
+	 * : int
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp popular pageviews facebook 1
+	 */
+	function pageviews( $args, $assoc_args ) {
+
+		list( $source, $post_id ) = $args;
+
+		$class = '';
+
+		switch ( $source )  {
+			case 'facebook':
+				$class = 'facebookLikesSource';
+				break;
+		}
+
+		$this->factory->{$class}()->getPageViewsByPostID( $post_id );
 	}
 
 }
