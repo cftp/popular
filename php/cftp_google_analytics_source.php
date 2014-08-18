@@ -257,7 +257,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 *
 	 * @return mixed
 	 */
-	private function getPageViewsURL( Google_Profile $profile, $url ) {
+	private function getPageViewsURL( Google_Service_Analytics_Profile $profile, $url ) {
 		$this->initialiseAPIs();
 		$url = trailingslashit( $url );
 		$to = date('Y-m-d');
@@ -334,7 +334,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 *
 	 * @return null
 	 */
-	private function getFirstProfile( Google_Webproperty $property ) {
+	private function getFirstProfile( Google_Service_Analytics_Webproperty  $property ) {
 		$this->initialiseAPIs();
 		$profiles = $this->service->management_profiles->listManagementProfiles( $property->accountId, $property->id );
 		if ( !empty( $profiles ) ) {
