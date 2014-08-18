@@ -59,24 +59,18 @@ class cftp_decay_shares_source implements cftp_analytics_source {
 			return false;
 		}
 
-		// Work out age and discard anything over 14 days
-		if ( $age = $this->post_age( $post_id ) ) {
+		$total = get_post_meta( $post_id, 'cfto_popular_views_decay_shares', true );
 
-			if ( $age > 14 * 24 ) {
-				echo 'Too old.<br>';
-			} else {
-				// Number of shares
-				$total = get_post_meta( $post_id, 'cfto_popular_views_total_shares', true );
-
-				if ( $total === '' ) {
-					echo 'pending';
-				} else if ( is_numeric( $total ) ) {
-					echo number_format( $total / ( $age / 24 ), 2 );   // convert hours to days to give larger number
-				} else {
-					echo 'n/a';
-				}
-			}
+		if ( $total === '' ) {
+			echo 'pending';
+		} elseif ( is_numeric($total) ) {
+			echo number_format( $total, 2 );
+		} elseif ( $total == 'Too old' ) {
+			echo $total;
+		} else {
+			echo 'n/a';
 		}
+
 	}
 
 	/**
@@ -132,6 +126,24 @@ class cftp_decay_shares_source implements cftp_analytics_source {
 	 * @param $post_id
 	 */
 	public function getPageViewsByPostID( $post_id ) {
+
+		if ( $age = $this->post_age( $post_id ) ) {
+
+			if ( $age > 14 * 24 ) {
+				return 'Too old';
+
+			} else {
+				// Number of shares
+				$total = get_post_meta( $post_id, 'cfto_popular_views_total_shares', true );
+
+				if ( $total === '' ) {
+					return '';
+				} else if ( is_numeric( $total ) ) {
+					return  $total / ( $age / 24 );   // convert hours to days to give larger number
+				}
+			}
+		}
+
 		return false;
 	}
 
