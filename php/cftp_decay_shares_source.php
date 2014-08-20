@@ -2,9 +2,9 @@
 
 class cftp_decay_shares_source implements cftp_analytics_source {
 
-	/**
-	 *
-	 */
+	const title = "Shares / age";
+	const days_cutoff = 14;
+
 	public function __construct() {
 		if ( is_admin() ) {
 			add_filter( 'manage_posts_columns', array( $this, 'columns_head' ) );
@@ -17,8 +17,7 @@ class cftp_decay_shares_source implements cftp_analytics_source {
 	}
 
 	function query_widget_order( $orders ) {
-		$orders['decay_shares'] = 'Shares vs Freshness';
-
+		$orders['decay_shares'] = constant( 'cftp_decay_shares_source::title' );
 		return $orders;
 	}
 
@@ -40,9 +39,12 @@ class cftp_decay_shares_source implements cftp_analytics_source {
 	}
 
 	function columns_head( $defaults ) {
-		$defaults['decay_shares'] = 'Shares vs Freshness';
-
+		// Tooltip (duplicate title so wherever they hover they see it)
+		$defaults['decay_shares'] = sprintf( '<span title="%1$s">%2$s</span> <span class="dashicons dashicons-editor-help" title="%1$s"></span> ',
+			'Shares per day since post publication date (calculated to nearest hour). Not shown for posts over '.constant('cftp_decay_shares_source::days_cutoff').' days old. ',
+			constant( 'cftp_decay_shares_source::title' ) );
 		return $defaults;
+
 	}
 
 	/**
@@ -62,13 +64,11 @@ class cftp_decay_shares_source implements cftp_analytics_source {
 		$total = get_post_meta( $post_id, 'cfto_popular_views_decay_shares', true );
 
 		if ( $total === '' ) {
-			echo 'pending';
+			echo constant('cftp_analytics_source::column_html_pending');
 		} elseif ( is_numeric($total) ) {
 			echo number_format( $total, 2 );
-		} elseif ( $total == 'Too old' ) {
-			echo $total;
 		} else {
-			echo 'n/a';
+			echo constant('cftp_analytics_source::column_html_na');
 		}
 
 	}
@@ -129,8 +129,8 @@ class cftp_decay_shares_source implements cftp_analytics_source {
 
 		if ( $age = $this->post_age( $post_id ) ) {
 
-			if ( $age > 14 * 24 ) {
-				return 'Too old';
+			if ( $age > constant('cftp_decay_shares_source::days_cutoff') * 24 ) {
+				return 'too old';
 
 			} else {
 				// Number of shares

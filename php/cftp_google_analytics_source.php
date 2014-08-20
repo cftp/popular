@@ -5,6 +5,8 @@
  */
 class cftp_google_analytics_source implements cftp_analytics_source {
 
+	const default_post_age = "30 days";
+
 	/**
 	 * @var Google_Client|null
 	 */
@@ -102,8 +104,25 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		return admin_url().'options-general.php?page=cftp_popular_settings_page';
 	}
 
+	/**
+	 * return max age of page views (or the default value if not set)
+	 *
+	 * @author William Turrell
+	 * @return string option
+	 */
+	public function getPostAge() {
+		$option = get_option( 'cftp_popular_google_analytics_post_age' );
+
+		if ( ! isset( $option ) or trim( $option ) == '' ) {
+			// although get_option has 2nd 'default' parameter, no good if you have empty (rather than unset) value
+			$option = constant( 'cftp_google_analytics_source::default_post_age' );
+		}
+
+		return $option;
+	}
+
 	function query_widget_order( $orders ) {
-		$orders['google_last30'] = 'GA Page Views last ~30 days';
+		$orders['google_last30'] = 'GA Page Views last '.$this->getPostAge();
 		return $orders;
 	}
 
@@ -124,7 +143,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	function columns_head($defaults) {
-		$defaults['google_last30'] = 'Page Views ~30 days';
+		// Tooltip (duplicate heading so wherever they hover they see it)
+		$defaults['google_last30'] = sprintf( '<span title="%1$s">Views</span> <span class="dashicons dashicons-editor-help" title="%1$s"></span> ',
+			'Page Views last '.$this->getPostAge().' (Google Analytics)' );
 		return $defaults;
 	}
 
@@ -133,11 +154,11 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$source_name = $this->sourceName();
 			$views = get_post_meta( $post_id, 'cfto_popular_views_'.$source_name, true );
 			if ( $views === '' ) {
-				echo 'pending';
+				echo constant('cftp_analytics_source::column_html_pending');
 			} else  if ( is_numeric( $views ) ) {
 				echo $views;
 			} else {
-				echo 'n/a';
+				echo constant('cftp_analytics_source::column_html_na');
 			}
 		}
 	}
@@ -168,6 +189,10 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$option_group, // Option group
 			$option_name.'_client_secret' // Option name
 		);
+		register_setting(
+			$option_group, // Option group
+			$option_name.'_post_age' // Option name
+		);
 		add_settings_field(
 			$option_name.'_client_id', // ID
 			'Google Analytics Client ID', // Title
@@ -186,6 +211,14 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$option_name.'_redirect_field', // ID
 			'Google Analytics Client Redirect URL', // Title
 			array( $this, 'displayRedirectURL' ), // Callback
+			$page, // Page
+			$section_id // Section
+		);
+
+		add_settings_field(
+			$option_name.'_post_age', // ID
+			'Show Page Views for last…', // Title
+			array( $this, 'displayPostAge' ), // Callback
 			$page, // Page
 			$section_id // Section
 		);
@@ -215,6 +248,17 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		<input class="widefat" name="cftp_popular_google_analytics_client_redirect_url" value="<?php echo $this->getRedirectURL(); ?>" disabled />
 		<p class="description">You'll need to create an API ID and secret, save them here, then use the above redirect URL in the google cloud panel before authenticating</p>
 		<?php
+	}
+	public function displayPostAge() {
+		?>
+		<input name="cftp_popular_google_analytics_post_age" value="<?php echo $this->getPostAge(); ?>" placeholder="<?php echo $this->getPostAge(); ?>" />
+		<p class="description">e.g. "30 days", "2 weeks", "3 months", "1 year" (parsed with <a href="http://php.net/strtotime">strtotime</a>).
+			<ul>
+			 <li>Note: if you have existing stats, they won't update instantly if you change this.</li>
+			 <li>The time period only applies to Page Views from Google Analytics, not any of the Facebook or Twitter stats.</li>
+			</ul>
+		</p>
+	<?php
 	}
 
 	/**
@@ -261,7 +305,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		$this->initialiseAPIs();
 		$url = trailingslashit( $url );
 		$to = date('Y-m-d');
-		$from = strtotime( $to.' -30 day' );
+		$from = strtotime( $to.' -'.$this->getPostAge() );
 		$from = date( 'Y-m-d', $from );
 		$data = $this->service->data_ga->get(
 			'ga:'.$profile->id,
@@ -275,6 +319,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				'max-results' => '1'
 			)
 		);
+
+		echo 'GA from = ', $from,"\n";
 
 		$result = $data->totalsForAllResults['ga:pageviews'];
 		return $result;

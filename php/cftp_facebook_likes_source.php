@@ -5,6 +5,9 @@ class cftp_facebook_likes_source implements cftp_analytics_source {
 	/**
 	 *
 	 */
+
+	const title = 'FB Likes';
+
 	public function __construct() {
 		if ( is_admin() ) {
 			add_filter( 'manage_posts_columns', array( $this, 'columns_head' ) );
@@ -17,7 +20,7 @@ class cftp_facebook_likes_source implements cftp_analytics_source {
 	}
 
 	function query_widget_order( $orders ) {
-		$orders['facebook_likes'] = 'Facebook Likes';
+		$orders['facebook_likes'] = constant('cftp_facebook_likes_source::title');
 
 		return $orders;
 	}
@@ -40,8 +43,10 @@ class cftp_facebook_likes_source implements cftp_analytics_source {
 	}
 
 	function columns_head( $defaults ) {
-		$defaults['facebook_likes'] = 'FB Likes';
-
+		// Tooltip (duplicate title so wherever they hover they see it)
+		$defaults['facebook_likes'] = sprintf( '<span title="%1$s">%2$s</span> <span class="dashicons dashicons-editor-help" title="%1$s"></span> ',
+			'Facebook Likes',
+			constant( 'cftp_facebook_likes_source::title' ) );
 		return $defaults;
 	}
 
@@ -58,21 +63,11 @@ class cftp_facebook_likes_source implements cftp_analytics_source {
 			}
 
 			if ( $views === '' ) {
-				echo 'pending';
+				echo constant('cftp_analytics_source::column_html_pending');
 			} else if ( is_numeric( $views ) ) {
-
-				if ( in_array('picshare/picshare.php',get_option('active_plugins')) ) {
-					// Link to full stats breakdown (served by Picshare but loaded from post_meta)
-					printf( '%d <a title="View full stats" href="%s"><span class="dashicons dashicons-chart-bar"></span></a>',
-						$views,
-						admin_url( 'options-general.php?page=picshare-setting-admin&post-stats-cftp-popular=' . $post_id )
-					);
-				} else {
-					// Just a number
-					echo $views;
-				}
+				echo $views;
 			} else {
-				echo 'n/a';
+				echo constant('cftp_analytics_source::column_html_na');
 			}
 		}
 	}

@@ -9,6 +9,10 @@ interface cftp_analytics_source {
 	 *
 	 * @return mixed
 	 */
+
+	const column_html_pending   = '<span title="pending" class="dashicons dashicons-clock"></span>';
+	const column_html_na        = 'n/a';
+
 	public function sourceName();
 
 	/**

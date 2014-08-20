@@ -5,6 +5,9 @@ class cftp_total_shares_source implements cftp_analytics_source {
 	/**
 	 *
 	 */
+
+	const title = "Total Shares";
+
 	public function __construct() {
 		if ( is_admin() ) {
 			add_filter('manage_posts_columns', array( $this, 'columns_head') );
@@ -17,7 +20,7 @@ class cftp_total_shares_source implements cftp_analytics_source {
 	}
 
 	function query_widget_order( $orders ) {
-		$orders['total_shares'] = 'Total Shares';
+		$orders['total_shares'] = constant('cftp_total_shares_source::title');
 		return $orders;
 	}
 
@@ -38,7 +41,11 @@ class cftp_total_shares_source implements cftp_analytics_source {
 	}
 
 	function columns_head($defaults) {
-		$defaults['total_shares'] = 'Total Shares';
+		// Tooltip (duplicate title so wherever they hover they see it)
+		$defaults['total_shares'] = sprintf( '<span title="%1$s">%2$s</span> <span class="dashicons dashicons-editor-help" title="%1$s"></span> ',
+			'Tweets + Facebook shares + Facebook likes',
+			constant( 'cftp_total_shares_source::title' ) );
+
 		return $defaults;
 	}
 
@@ -47,11 +54,21 @@ class cftp_total_shares_source implements cftp_analytics_source {
 			$source_name = $this->sourceName();
 			$views = get_post_meta( $post_id, 'cfto_popular_views_'.$source_name, true );
 			if ( $views === '' ) {
-				echo 'pending';
+				echo constant('cftp_analytics_source::column_html_pending');
 			} else  if ( is_numeric( $views ) ) {
-				echo $views;
+
+				if ( in_array('picshare/picshare.php',get_option('active_plugins')) ) {
+					// Link to full stats breakdown (served by Picshare but loaded from post_meta)
+					printf( '%d <a title="View full stats" href="%s"><span class="dashicons dashicons-chart-bar"></span></a>',
+						$views,
+						admin_url( 'options-general.php?page=picshare-setting-admin&post-stats-cftp-popular=' . $post_id )
+					);
+				} else {
+					echo $views;
+				}
+
 			} else {
-				echo 'n/a';
+				echo constant('cftp_analytics_source::column_html_na');
 			}
 		}
 	}

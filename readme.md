@@ -13,5 +13,6 @@
 
 Note:
 
+- By default, we only show page views for the last 30 days. You can adjust this in the plugin settings.
 - Popular uses OAuth, not Google "Service Accounts".
 - In your Google Analytics property settings, don't include trailing slash in default URL, i.e. http://example.com NOT http://example.com/

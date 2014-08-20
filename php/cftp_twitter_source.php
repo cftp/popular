@@ -2,9 +2,8 @@
 
 class cftp_twitter_source implements cftp_analytics_source {
 
-	/**
-	 *
-	 */
+	const title = "Tweets";
+
 	public function __construct() {
 		if ( is_admin() ) {
 			add_filter('manage_posts_columns', array( $this, 'columns_head') );
@@ -17,7 +16,7 @@ class cftp_twitter_source implements cftp_analytics_source {
 	}
 
 	function query_widget_order( $orders ) {
-		$orders['twitter_shares'] = 'Twitter Shares';
+		$orders['twitter_shares'] = constant('cftp_twitter_source::title');
 		return $orders;
 	}
 
@@ -38,7 +37,7 @@ class cftp_twitter_source implements cftp_analytics_source {
 	}
 
 	function columns_head($defaults) {
-		$defaults['twitter_shares'] = 'Twitter Shares';
+		$defaults['twitter_shares'] = constant('cftp_twitter_source::title');
 		return $defaults;
 	}
 
@@ -47,11 +46,11 @@ class cftp_twitter_source implements cftp_analytics_source {
 			$source_name = $this->sourceName();
 			$views = get_post_meta( $post_id, 'cfto_popular_views_'.$source_name, true );
 			if ( $views === '' ) {
-				echo 'pending';
+				echo constant('cftp_analytics_source::column_html_pending');
 			} else  if ( is_numeric( $views ) ) {
 				echo $views;
 			} else {
-				echo 'n/a';
+				echo constant('cftp_analytics_source::column_html_na');
 			}
 		}
 	}
@@ -77,7 +76,7 @@ class cftp_twitter_source implements cftp_analytics_source {
 
 		add_settings_field(
 			$option_name, // ID
-			'Twitter Shares', // Title
+			constant('cftp_twitter_source::title'), // Title
 			array( $this, 'displaySettings' ), // Callback
 			$page, // Page
 			$section_id // Section
@@ -95,7 +94,7 @@ class cftp_twitter_source implements cftp_analytics_source {
 	 *
 	 */
 	public function displaySettings() {
-		echo '<p>Twitter shares requires no configuration</p>';
+		echo '<p>'.constant('cftp_twitter_source::title').' requires no configuration</p>';
 	}
 
 	/**

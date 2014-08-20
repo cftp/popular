@@ -9,30 +9,30 @@ class Popular_Command extends WP_CLI_Command {
 		// Replicate what happens in plugin.php
 
 		$this->factory = new cftp_analytics_factory();
-		$model         = new cftp_analytics_option_model();
+		$this->model   = new cftp_analytics_option_model();
 
 		$analytics = $this->factory->googleAnalyticsSource();
-		$model->addSource( $analytics );
+		$this->model->addSource( $analytics );
 
 		$twitter = $this->factory->twitterSharesSource();
-		$model->addSource( $twitter );
+		$this->model->addSource( $twitter );
 
 		$fblikes = $this->factory->facebookLikesSource();
-		$model->addSource( $fblikes );
+		$this->model->addSource( $fblikes );
 
 		$fbshares = $this->factory->facebookSharesSource();
-		$model->addSource( $fbshares );
+		$this->model->addSource( $fbshares );
 
 		$totalshares = $this->factory->totalSharesSource();
-		$model->addSource( $totalshares );
+		$this->model->addSource( $totalshares );
 
 		$decayshares = $this->factory->decaySharesSource();
-		$model->addSource( $decayshares );
+		$this->model->addSource( $decayshares );
 
 		$decayviews = $this->factory->decayViewsSource();
-		$model->addSource( $decayviews );
+		$this->model->addSource( $decayviews );
 
-		$this->popular = new cftp_analytics( $this->factory, $model );
+		$this->popular = new cftp_analytics( $this->factory, $this->model );
 	}
 
 	/**
