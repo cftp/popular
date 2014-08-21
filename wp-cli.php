@@ -113,6 +113,17 @@ class Popular_Command extends WP_CLI_Command {
 		$this->factory->{$class}()->getPageViewsByPostID( $post_id );
 	}
 
+	/**
+	 * Reset Popular/Picshare columns by adjusting 'Screen Options' for all users.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp popular reset_user_columns
+	 */
+	function reset_user_columns() {
+		echo $this->factory->settingPage( $this->model )->cftp_popular_activate();
+	}
+
 }
 
 WP_CLI::add_command( 'popular', 'Popular_Command' );

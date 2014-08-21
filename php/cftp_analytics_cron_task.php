@@ -37,41 +37,57 @@ class cftp_analytics_cron_task {
 		//add_action( 'admin_init', array( $this, 'task' ) );
 	}
 
-	// actually run the task
+	/**
+	 * Actually run task for a particular source.
+	 * Searches for posts that have no data, or are ready to be refreshed. Calls process_posts function.
+	 * Note I was unable to make this work correctly in a combined 'OR' meta_query.
+	 *
+	 * @author William Turrell
+	 */
 	public function task() {
+
 		$source_name = $this->source->sourceName();
-		$to = date('Y-m-d');
-		$from = strtotime( $to.' -30 day' );
-		$args = array(
-			'meta_key' => 'cfto_popular_last_updated_'.$source_name,
-			'posts_per_page' => '25', // Let's show them all.
-			'post_status' => 'publish',
-			'post_type' => 'any',
-			'meta_query' => array( // WordPress has all the results, now, return only the events after today's date
-				'relation' => 'OR',
-				// either fine posts that haven't been analysed at all
-				array(
-					'key' => 'cfto_popular_last_updated_'.$source_name,
-					'compare' => 'NOT EXISTS',
-					'value' => ''
-				),
-				// or filter by date
+		$key         = 'cfto_popular_last_updated_' . $source_name;
 
-				// @todo For some reason WP_Query won't find new posts (w/o existing post meta) unless I comment this out?
-				// Also shouldn't it be last_updated <= $to (now), not <= $from (1 month ago)? William, 2014-08-16
-
-				array(
-					'key' => 'cfto_popular_last_updated_'.$source_name, // Check the start date field
-					'value' => $from, // Set today's date (note the similar format)
-					'compare' => '<=', // Return the ones greater than today's date
-					'type' => 'NUMERIC,' // Let WordPress know we're working with numbers
-				)
-			)
+		$common_args = array(
+			// Use these for all queries
+			'posts_per_page' => '25',                   // max no. of posts at a time
+			'post_status'    => 'publish',
+			'post_type'      => 'any',
+			'meta_key'       => $key,
 		);
-		$query = new WP_Query( $args );
+
+		// 1. Posts that don't have any stats yet.
+		$args = array(
+			'meta_compare' => 'NOT EXISTS',
+			'meta_value'   => '1',
+		);
+
+		$this->process_posts( array_merge( $common_args, $args ), $source_name );
+
+		// 2. Posts with stats at least one day old (time to update again)
+		$args = array(
+			'meta_compare' => '<',
+			'meta_value'   => date( 'Y-m-d' ),
+		);
+
+		$this->process_posts( array_merge( $common_args, $args ), $source_name );
+	}
+
+	/**
+	 * Process posts, use source class to lookup views/shares, write it to post_meta
+	 *
+	 * @param array $args list of WP_Query arguments
+	 * @param string $source_name e.g. "facebook_shares"
+	 */
+	function process_posts( $args, $source_name ) {
+
+		$query = new WP_Query( $args, $source_name );
+
 		if ( $query->have_posts() ) {
 			global $post;
 			while ( $query->have_posts() ) {
+
 				$query->the_post();
 				$views = $this->source->getPageViewsByPostID( $post->ID );
 
@@ -80,10 +96,12 @@ class cftp_analytics_cron_task {
 				}
 
 				if ( $views !== false ) {
-					update_post_meta( $post->ID,'cfto_popular_views_'.$source_name, $views );
-					update_post_meta( $post->ID,'cfto_popular_last_updated_'.$source_name, date( 'Y-m-d') );
+					update_post_meta( $post->ID, 'cfto_popular_views_' . $source_name, $views );
+					update_post_meta( $post->ID, 'cfto_popular_last_updated_' . $source_name, date( 'Y-m-d' ) );
 				}
 			}
 		}
+
 	}
+
 }
