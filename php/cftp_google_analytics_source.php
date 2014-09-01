@@ -315,7 +315,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			array(
 				'dimensions' => 'ga:pageTitle,ga:pagePath',
 				'sort' => '-ga:pageviews',
-				'filters' => 'ga:pagePath=='.$url,
+				'filters' => 'ga:pagePath=~'.$url,
 				'max-results' => '1'
 			)
 		);
