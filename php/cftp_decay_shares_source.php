@@ -74,11 +74,11 @@ class cftp_decay_shares_source implements cftp_analytics_source {
 	}
 
 	/**
-	 * How many hours old is a post? Use hours rather than days so result is more stable when days increment.
+	 * How many days old is a post?
 	 *
 	 * @param $post_id
 	 *
-	 * @return int number of hours (rounded up)
+	 * @return int number of days (rounded up)
 	 *
 	 * @author William Turrell
 	 */
@@ -86,7 +86,7 @@ class cftp_decay_shares_source implements cftp_analytics_source {
 
 		$age = time() - get_post_time( 'U', true, $post_id );
 
-		return ceil( $age / 3600 );
+		return ceil( $age / 86400 );
 	}
 
 	/**
@@ -139,7 +139,7 @@ class cftp_decay_shares_source implements cftp_analytics_source {
 				if ( $total === '' ) {
 					return '';
 				} else if ( is_numeric( $total ) ) {
-					return  $total / ( $age / 24 );   // convert hours to days to give larger number
+					return  $total / $age;
 				}
 			}
 		}
