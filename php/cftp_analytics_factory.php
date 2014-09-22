@@ -35,6 +35,10 @@ class cftp_analytics_factory {
 		return new cftp_facebook_shares_source();
 	}
 
+	public function linkedinSource() {
+		return new cftp_linkedin_source()();
+	}
+
 	public function totalSharesSource() {
 		return new cftp_total_shares_source();
 	}

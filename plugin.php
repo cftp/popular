@@ -30,6 +30,7 @@ require_once( 'php/cftp_google_analytics_source.php' );
 require_once( 'php/cftp_facebook_likes_source.php' );
 require_once( 'php/cftp_facebook_shares_source.php' );
 require_once( 'php/cftp_twitter_source.php' );
+require_once( 'php/cftp_linkedin_source.php' );
 require_once( 'php/cftp_total_shares_source.php' );
 require_once( 'php/cftp_decay_views_source.php' );
 require_once( 'php/cftp_decay_shares_source.php' );
@@ -45,6 +46,9 @@ $model->addSource( $analytics );
 
 $twitter = $factory->twitterSharesSource();
 $model->addSource( $twitter );
+
+$linkedin = $factory->linkedinSharesSource();
+$model->addSource( $linkedin );
 
 $fblikes = $factory->facebookLikesSource();
 $model->addSource( $fblikes );
