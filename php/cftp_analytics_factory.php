@@ -36,7 +36,7 @@ class cftp_analytics_factory {
 	}
 
 	public function linkedinSource() {
-		return new cftp_linkedin_source()();
+		return new cftp_linkedin_source();
 	}
 
 	public function totalSharesSource() {
