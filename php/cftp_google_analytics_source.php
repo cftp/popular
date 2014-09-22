@@ -42,6 +42,10 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		if ( $this->client != null ) {
 			return;
 		}
+		if ( !class_exists( 'Google_Client' ) ) {
+			echo '<p><strong>Warning: The <code>Google_Client</code> class doesn\'t exist, did you run composer install to pull down the Google API library?</strong></p>';
+			return;
+		}
 
 		try {
 			$this->client = new Google_Client();
@@ -277,7 +281,11 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 *
 	 */
 	public function displaySettings() {
+
 		$this->initialiseAPIs();
+		if ( !class_exists( 'Google_Client' ) ) {
+			return;
+		}
 		if ( !$this->isConfigured() ) {
 
 			try {
