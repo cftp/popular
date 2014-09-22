@@ -47,7 +47,7 @@ $model->addSource( $analytics );
 $twitter = $factory->twitterSharesSource();
 $model->addSource( $twitter );
 
-$linkedin = $factory->linkedinSharesSource();
+$linkedin = $factory->linkedinSource();
 $model->addSource( $linkedin );
 
 $fblikes = $factory->facebookLikesSource();
