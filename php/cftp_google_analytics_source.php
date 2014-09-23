@@ -50,7 +50,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				<?php
 			}
 			echo '</div>';
-		}g
+		}
 	}
 
 	/**
