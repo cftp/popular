@@ -1,5 +1,6 @@
 <?php
 
+
 /**
  * Class cftp_google_analytics_source
  */
@@ -13,9 +14,11 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	private $client = null;
 
 	/**
-	 * @var Google_AnalyticsService|null
+	 * @var Google_Service_Analytics|null
 	 */
 	private $service = null;
+
+	private $errors = array();
 
 	/**
 	 *
@@ -37,6 +40,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		add_filter( 'request', array( $this, 'orderby' ) );
 	}
 
+	/**
+	 *
+	 */
 	public function initialiseAPIs() {
 
 		if ( $this->client != null ) {
@@ -65,9 +71,14 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 
 			$this->service = new Google_Service_Analytics( $this->client );
 		} catch ( Google_IO_Exception $e ) {
-			wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google IO Exception thrown with message: '.$e->getMessage());
+			$this->errors[] = $e;
+			return;
 		} catch ( Google_Service_Exception $e ) {
-			wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google IO Exception thrown with message: '.$e->getMessage());
+			$this->errors[] = $e;
+			return;
+		} catch ( Google_Auth_Exception $e ) {
+			$this->errors[] = $e;
+			return;
 		}
 
 		$token = '';
@@ -83,7 +94,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			} catch ( Google_IO_Exception $e ) {
 				wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google IO Exception thrown with message: '.$e->getMessage());
 			} catch ( Google_Service_Exception $e ) {
-				wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google IO Exception thrown with message: '.$e->getMessage());
+				wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google Service Exception thrown with message: '.$e->getMessage());
+			} catch ( Google_Auth_Exception $e ) {
+				wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google Auth Exception thrown with message: '.$e->getMessage());
 			}
 		} else {
 			$token = get_option( 'cftp_popular_ga_token' );
@@ -95,12 +108,10 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	public function getClientID() {
-		//return '428049761702-ns5qdmhmstupbpi22oo9iokohq153m5p.apps.googleusercontent.com';
 		return get_option('cftp_popular_google_analytics_client_id');
 	}
 
 	public function getClientSecret() {
-		//return 'Nl8codQLU7JiuX57Rm6RLasy';
 		return get_option('cftp_popular_google_analytics_client_secret');
 	}
 
@@ -294,7 +305,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				<a href="<?php echo $authUrl; ?>" class="button">Activate Google Analytics</a>
 				<?php
 			} catch ( Google_IOException $e ) {
-				wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google IO Exception thrown with message: '.$e->getMessage());
+				?>
+				<p>Error: While trying to create the Activate Google Analytics button URL, an exception was thrown with this message: "<code><?php echo $e->getMessage(); ?></code>"</p>
+				<?php
 			}
 		} else {
 			?>
@@ -304,8 +317,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	/**
-	 * @param Google_Profile $profile
-	 * @param                $url
+	 * @param Google_Profile|Google_Service_Analytics_Profile $profile
+	 * @param                                                 $url
 	 *
 	 * @return mixed
 	 */
@@ -315,23 +328,27 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		$to = date('Y-m-d');
 		$from = strtotime( $to.' -'.$this->getPostAge() );
 		$from = date( 'Y-m-d', $from );
-		$data = $this->service->data_ga->get(
-			'ga:'.$profile->id,
-			$from,
-			$to,
-			'ga:pageviews',
-			array(
-				'dimensions' => 'ga:pageTitle,ga:pagePath',
-				'sort' => '-ga:pageviews',
-				'filters' => 'ga:pagePath=~'.$url,
-				'max-results' => '1'
-			)
-		);
+		if ( isset( $this->service->data_ga ) ) {
+			$data = $this->service->data_ga->get(
+				'ga:'.$profile->id,
+				$from,
+				$to,
+				'ga:pageviews',
+				array(
+					'dimensions' => 'ga:pageTitle,ga:pagePath',
+					'sort' => '-ga:pageviews',
+					'filters' => 'ga:pagePath=~'.$url,
+					'max-results' => '1'
+				)
+			);
+			//echo 'GA from = ', $from,"\n";
 
-		echo 'GA from = ', $from,"\n";
+			$result = $data->totalsForAllResults['ga:pageviews'];
+			return $result;
+		}
+		return false;
 
-		$result = $data->totalsForAllResults['ga:pageviews'];
-		return $result;
+
 	}
 
 	/**
