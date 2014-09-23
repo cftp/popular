@@ -105,11 +105,14 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
 				wp_safe_redirect( $redirect );
 			} catch ( Google_IO_Exception $e ) {
-				wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google IO Exception thrown with message: '.$e->getMessage());
+				$this->errors[] = $e;
+				return;
 			} catch ( Google_Service_Exception $e ) {
-				wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google Service Exception thrown with message: '.$e->getMessage());
+				$this->errors[] = $e;
+				return;
 			} catch ( Google_Auth_Exception $e ) {
-				wp_die( 'Unrecoverable error, please try re-authenticating to recover. Google Auth Exception thrown with message: '.$e->getMessage());
+				$this->errors[] = $e;
+				return;
 			}
 		} else {
 			$token = get_option( 'cftp_popular_ga_token' );
@@ -286,7 +289,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			 <li>The time period only applies to Page Views from Google Analytics, not any of the Facebook or Twitter stats.</li>
 			</ul>
 		</p>
-	<?php
+		<?php
 	}
 
 	/**
@@ -318,10 +321,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				<a href="<?php echo $authUrl; ?>" class="button">Activate Google Analytics</a>
 				<?php
 			} catch ( Google_IOException $e ) {
-				?>
-				<p class="error">Error: While trying to create the Activate Google Analytics button URL, an exception was thrown with this message:
-					<code>"<?php echo $e->getMessage(); ?>"</code></p>
-				<?php
+				$this->errors[] = $e;
+				return;
 			}
 		} else {
 			?>
@@ -382,8 +383,6 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			} catch ( Google_IOException $e ) {
 				$this->errors[] = $e;
 			}
-		} else {
-			echo 'current is null?!';
 		}
 		return null;
 	}
@@ -405,7 +404,6 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 					return $prop;
 				}
 			}
-			echo 'not found property..';
 		} catch ( Google_ServiceException $e ) {
 			$this->errors[] = $e;
 		} catch ( Google_IOException $e ) {
