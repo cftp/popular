@@ -306,13 +306,20 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				<?php
 			} catch ( Google_IOException $e ) {
 				?>
-				<p>Error: While trying to create the Activate Google Analytics button URL, an exception was thrown with this message: "<code><?php echo $e->getMessage(); ?></code>"</p>
+				<p class="error">Error: While trying to create the Activate Google Analytics button URL, an exception was thrown with this message: <code>"<?php echo $e->getMessage(); ?>"</code></p>
 				<?php
 			}
 		} else {
 			?>
 			<a class="button disabled" disabled >Deactivate Google Analytics</a>
-		<?php
+			<?php
+		}
+		if ( !empty( $this->errors ) ) {
+			foreach( $this->errors as $error ) {
+				?>
+				<p class="error">Error: Popular, Google API Exception: <code>"<?php echo 'Code: '.$e->getCode().', Message: '.$error->getMessage(); ?>"</code></p>
+				<?php
+			}
 		}
 	}
 
@@ -364,9 +371,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				$profile = $this->getFirstProfile( $current );
 				return $profile;
 			} catch ( Google_ServiceException $e ) {
-				print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
+				$this->errors[] = $e;
 			} catch ( Google_IOException $e ) {
-				print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
+				$this->errors[] = $e;
 			}
 		} else {
 			echo 'current is null?!';
@@ -393,15 +400,15 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			}
 			echo 'not found property..';
 		} catch ( Google_ServiceException $e ) {
-			print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
+			$this->errors[] = $e;
 		} catch ( Google_IOException $e ) {
-			print 'There was an Analytics API service error ' . $e->getCode() . ': ' . $e->getMessage();
+			$this->errors[] = $e;
 		}
 		return null;
 	}
 
 	/**
-	 * @param Google_Webproperty $property
+	 * @param Google_Service_Analytics_Webproperty|Google_Webproperty $property
 	 *
 	 * @return null
 	 */
@@ -433,6 +440,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 
 	/**
 	 * @param $post_id
+	 *
+	 * @return bool|mixed|string
 	 */
 	public function getPageViewsByPostID( $post_id ) {
 		$this->initialiseAPIs();
