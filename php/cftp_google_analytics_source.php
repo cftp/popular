@@ -28,6 +28,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			add_filter( 'manage_posts_columns', array( $this, 'columns_head') );
 			add_action( 'manage_posts_custom_column', array( $this, 'columns_content' ), 10, 2);
 			add_filter( 'manage_edit-post_sortable_columns', array( $this, 'column_register_sortable' ) );
+			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 		}
 
 		// @TODO: there's something inherently wrong about creating the google client in here
@@ -38,6 +39,18 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 
 		add_filter( 'kqw_orderby_options', array( $this, 'query_widget_order' ) );
 		add_filter( 'request', array( $this, 'orderby' ) );
+	}
+
+	public function admin_notices() {
+		if ( !empty( $this->errors ) ) {
+			echo '<div class="error">';
+			foreach( $this->errors as $error ) {
+				?>
+				<p>Error: Popular, Google API Exception: <code>"<?php echo 'Code: '.$e->getCode().', Message: '.$error->getMessage(); ?>"</code></p>
+				<?php
+			}
+			echo '</div>';
+		}g
 	}
 
 	/**
@@ -306,20 +319,14 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				<?php
 			} catch ( Google_IOException $e ) {
 				?>
-				<p class="error">Error: While trying to create the Activate Google Analytics button URL, an exception was thrown with this message: <code>"<?php echo $e->getMessage(); ?>"</code></p>
+				<p class="error">Error: While trying to create the Activate Google Analytics button URL, an exception was thrown with this message:
+					<code>"<?php echo $e->getMessage(); ?>"</code></p>
 				<?php
 			}
 		} else {
 			?>
 			<a class="button disabled" disabled >Deactivate Google Analytics</a>
 			<?php
-		}
-		if ( !empty( $this->errors ) ) {
-			foreach( $this->errors as $error ) {
-				?>
-				<p class="error">Error: Popular, Google API Exception: <code>"<?php echo 'Code: '.$e->getCode().', Message: '.$error->getMessage(); ?>"</code></p>
-				<?php
-			}
 		}
 	}
 
