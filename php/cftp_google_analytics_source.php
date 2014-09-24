@@ -309,6 +309,11 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 */
 	public function displaySettings() {
 
+		if ( !empty( $_GET['cftp_pop_ga_reset'] ) ) {
+			// delete the tokens and things?
+			delete_option( 'cftp_popular_ga_token' );
+		}
+
 		$this->initialiseAPIs();
 		if ( !class_exists( 'Google_Client' ) ) {
 			return;
@@ -326,7 +331,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			}
 		} else {
 			?>
-			<a class="button disabled" disabled >Deactivate Google Analytics</a>
+			<a class="button" href="options-general.php?page=cftp_popular_settings_page&cftp_pop_ga_reset=true" >Deactivate Google Analytics</a>
 			<?php
 		}
 	}
