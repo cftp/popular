@@ -100,17 +100,25 @@ class Popular_Command extends WP_CLI_Command {
 	 */
 	function pageviews( $args, $assoc_args ) {
 
-		list( $source, $post_id ) = $args;
+		list( $source_name, $post_id ) = $args;
 
-		$class = '';
+		$source = null;
 
-		switch ( $source )  {
+		switch ( $source_name )  {
 			case 'facebook':
-				$class = 'facebookLikesSource';
+				$source = $this->factory->facebookLikesSource();
+				break;
+			case 'googleanalytics':
+				$source = $this->factory->googleAnalyticsSource();
+				break;
+			case 'twitter':
+				$source = $this->factory->twitterSharesSource();
+				break;
+			default:
+				$source = new cftp_null_analytics_source();
 				break;
 		}
-
-		$this->factory->{$class}()->getPageViewsByPostID( $post_id );
+		echo $source->getPageViewsByPostID( $post_id );
 	}
 
 	/**
