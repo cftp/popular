@@ -26,6 +26,7 @@ require_once( 'php/cftp_analytics.php' );
 require_once( 'php/cftp_analytics_cron_task.php' );
 require_once( 'php/cftp_analytics_settings_page.php' );
 require_once( 'php/cftp_analytics_source.php' );
+require_once( 'php/cftp_google_analytics_auth.php' );
 require_once( 'php/cftp_google_analytics_source.php' );
 require_once( 'php/cftp_facebook_likes_source.php' );
 require_once( 'php/cftp_facebook_shares_source.php' );

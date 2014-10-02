@@ -9,16 +9,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	const default_post_age = "30 days";
 
 	/**
-	 * @var Google_Client|null
+	 * @var cftp_google_analytics_auth|null
 	 */
-	private $client = null;
-
-	/**
-	 * @var Google_Service_Analytics|null
-	 */
-	private $service = null;
-
-	private $errors = array();
+	private $google_auth = null;
 
 	/**
 	 *
@@ -30,21 +23,16 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			add_filter( 'manage_edit-post_sortable_columns', array( $this, 'column_register_sortable' ) );
 			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 		}
-
-		// @TODO: there's something inherently wrong about creating the google client in here
-		// must consider using an object factory and passing in as a parameter instead
-		if ( isset( $_GET['code'] ) ) {
-			$this->initialiseAPIs();
-		}
+		$this->google_auth = new cftp_google_analytics_auth();
 
 		add_filter( 'kqw_orderby_options', array( $this, 'query_widget_order' ) );
 		add_filter( 'request', array( $this, 'orderby' ) );
 	}
 
 	public function admin_notices() {
-		if ( !empty( $this->errors ) ) {
+		if ( !empty( $this->google_auth->errors ) ) {
 			echo '<div class="error">';
-			foreach( $this->errors as $error ) {
+			foreach( $this->google_auth->errors as $error ) {
 				?>
 				<p>Error: Popular, Google API Exception: <code>"<?php echo 'Code: '.$e->getCode().', Message: '.$error->getMessage(); ?>"</code></p>
 				<?php
@@ -58,81 +46,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 */
 	public function initialiseAPIs() {
 
-		if ( $this->client != null ) {
-			return;
-		}
-		if ( !class_exists( 'Google_Client' ) ) {
-			echo '<p><strong>Warning: The <code>Google_Client</code> class doesn\'t exist, did you run composer install to pull down the Google API library?</strong></p>';
-			return;
-		}
+		$this->google_auth->initialiseAPIs();
 
-		try {
-			$this->client = new Google_Client();
-
-			$this->client->setApprovalPrompt("force");
-			$this->client->setAccessType('offline');
-
-			$this->client->setApplicationName( "CFTP Popular" );
-
-			// Visit https://code.google.com/apis/console?api=analytics to generate your
-			// client id, client secret, and to register your redirect uri.
-			$this->client->setClientId( $this->getClientID() );
-			$this->client->setClientSecret( $this->getClientSecret() );
-			$this->client->setRedirectUri( $this->getRedirectURL() );
-
-			$this->client->setScopes( array( 'https://www.googleapis.com/auth/analytics.readonly' ) );
-
-			$this->service = new Google_Service_Analytics( $this->client );
-		} catch ( Google_IO_Exception $e ) {
-			$this->errors[] = $e;
-			return;
-		} catch ( Google_Service_Exception $e ) {
-			$this->errors[] = $e;
-			return;
-		} catch ( Google_Auth_Exception $e ) {
-			$this->errors[] = $e;
-			return;
-		}
-
-		$token = '';
-
-		if ( isset( $_GET['code'] ) ) {
-			try {
-				$code = $_GET['code'];
-				$this->client->authenticate( $code );
-				$newtoken = $this->client->getAccessToken();
-				update_option('cftp_popular_ga_token', $newtoken );
-				$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-				wp_safe_redirect( $redirect );
-			} catch ( Google_IO_Exception $e ) {
-				$this->errors[] = $e;
-				return;
-			} catch ( Google_Service_Exception $e ) {
-				$this->errors[] = $e;
-				return;
-			} catch ( Google_Auth_Exception $e ) {
-				$this->errors[] = $e;
-				return;
-			}
-		} else {
-			$token = get_option( 'cftp_popular_ga_token' );
-		}
-		if ( !empty( $token ) ) {
-			$this->client->setAccessToken( $token );
-		}
-
-	}
-
-	public function getClientID() {
-		return get_option('cftp_popular_google_analytics_client_id');
-	}
-
-	public function getClientSecret() {
-		return get_option('cftp_popular_google_analytics_client_secret');
-	}
-
-	public function getRedirectURL() {
-		return admin_url().'options-general.php?page=cftp_popular_settings_page';
 	}
 
 	/**
@@ -205,6 +120,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 * @param $option_group
 	 * @param $section_id
 	 * @param $page
+	 *
+	 * @return null|void
 	 */
 	public function registerSettings( $option_group, $section_id, $page ) {
 		$option_name = 'cftp_popular_google_analytics';
@@ -266,17 +183,17 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 
 	public function displayClientID() {
 		?>
-		<input class="widefat" name="cftp_popular_google_analytics_client_id" value="<?php echo $this->getClientID(); ?>"/>
+		<input class="widefat" name="cftp_popular_google_analytics_client_id" value="<?php echo $this->google_auth->getClientID(); ?>"/>
 		<?php
 	}
 	public function displayClientSecret() {
 		?>
-		<input class="widefat" name="cftp_popular_google_analytics_client_secret" value="<?php echo $this->getClientSecret(); ?>"/>
+		<input class="widefat" name="cftp_popular_google_analytics_client_secret" value="<?php echo $this->google_auth->getClientSecret(); ?>"/>
 		<?php
 	}
 	public function displayRedirectURL() {
 		?>
-		<input class="widefat" name="cftp_popular_google_analytics_client_redirect_url" value="<?php echo $this->getRedirectURL(); ?>" disabled />
+		<input class="widefat" name="cftp_popular_google_analytics_client_redirect_url" value="<?php echo $this->google_auth->getRedirectURL(); ?>" disabled />
 		<p class="description">You'll need to create an API ID and secret, save them here, then use the above redirect URL in the google cloud panel before authenticating</p>
 		<?php
 	}
@@ -297,11 +214,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 */
 	public function isConfigured() {
 
-		$token = get_option( 'cftp_popular_ga_token' );
-		if ( !empty( $token ) ) {
-			return true;
-		}
-		return false;
+		$this->google_auth->isConfigured();
 	}
 
 	/**
@@ -321,12 +234,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		if ( !$this->isConfigured() ) {
 
 			try {
-				$authUrl = $this->client->createAuthUrl();
+				$authUrl = $this->google_auth->getAuthURL();
 				?>
 				<a href="<?php echo $authUrl; ?>" class="button">Activate Google Analytics</a>
 				<?php
 			} catch ( Google_IOException $e ) {
-				$this->errors[] = $e;
+				$this->google_auth->errors[] = $e;
 				return;
 			}
 		} else {
@@ -348,8 +261,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		$to = date('Y-m-d');
 		$from = strtotime( $to.' -'.$this->getPostAge() );
 		$from = date( 'Y-m-d', $from );
-		if ( isset( $this->service->data_ga ) ) {
-			$data = $this->service->data_ga->get(
+		if ( isset( $this->google_auth->service->data_ga ) ) {
+			$data = $this->google_auth->service->data_ga->get(
 				'ga:'.$profile->id,
 				$from,
 				$to,
@@ -384,9 +297,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				$profile = $this->getFirstProfile( $current );
 				return $profile;
 			} catch ( Google_ServiceException $e ) {
-				$this->errors[] = $e;
+				$this->google_auth->errors[] = $e;
 			} catch ( Google_IOException $e ) {
-				$this->errors[] = $e;
+				$this->google_auth->errors[] = $e;
 			}
 		}
 		return null;
@@ -403,16 +316,16 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$url = site_url();
 		}
 		try {
-			$props = $this->service->management_webproperties->listManagementWebproperties("~all");
+			$props = $this->google_auth->service->management_webproperties->listManagementWebproperties("~all");
 			foreach ( $props->items as $prop ) {
 				if ( $url == $prop->websiteUrl ) {
 					return $prop;
 				}
 			}
 		} catch ( Google_ServiceException $e ) {
-			$this->errors[] = $e;
+			$this->google_auth->errors[] = $e;
 		} catch ( Google_IOException $e ) {
-			$this->errors[] = $e;
+			$this->google_auth->errors[] = $e;
 		}
 		return null;
 	}
@@ -424,7 +337,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 */
 	private function getFirstProfile( Google_Service_Analytics_Webproperty  $property ) {
 		$this->initialiseAPIs();
-		$profiles = $this->service->management_profiles->listManagementProfiles( $property->accountId, $property->id );
+		$profiles = $this->google_auth->service->management_profiles->listManagementProfiles( $property->accountId, $property->id );
 		if ( !empty( $profiles ) ) {
 			foreach ( $profiles->items as $prop ) {
 				return $prop;
