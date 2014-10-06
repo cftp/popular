@@ -21,7 +21,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			add_filter( 'manage_posts_columns', array( $this, 'columns_head') );
 			add_action( 'manage_posts_custom_column', array( $this, 'columns_content' ), 10, 2);
 			add_filter( 'manage_edit-post_sortable_columns', array( $this, 'column_register_sortable' ) );
-			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+			add_action( 'all_admin_notices', array( $this, 'admin_notices' ) );
 		}
 		$this->google_auth = new cftp_google_analytics_auth();
 
@@ -231,6 +231,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		if ( !class_exists( 'Google_Client' ) ) {
 			return;
 		}
+		echo 'Token: '.get_option( 'cftp_popular_ga_token').'<br>';
+		echo 'Auth Token: '.get_option( 'cftp_popular_ga_authtoken').'<br>';
 		if ( !$this->isConfigured() ) {
 
 			try {
