@@ -129,6 +129,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$option_group, // Option group
 			$option_name // Option name
 		);
+
 		register_setting(
 			$option_group, // Option group
 			$option_name.'_client_id' // Option name
@@ -141,28 +142,30 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$option_group, // Option group
 			$option_name.'_post_age' // Option name
 		);
-		add_settings_field(
-			$option_name.'_client_id', // ID
-			'Google Analytics Client ID', // Title
-			array( $this, 'displayClientID' ), // Callback
-			$page, // Page
-			$section_id // Section
-		);
-		add_settings_field(
-			$option_name.'_client_secret', // ID
-			'Google Analytics Client Secret', // Title
-			array( $this, 'displayClientSecret' ), // Callback
-			$page, // Page
-			$section_id // Section
-		);
-		add_settings_field(
-			$option_name.'_redirect_field', // ID
-			'Google Analytics Client Redirect URL', // Title
-			array( $this, 'displayRedirectURL' ), // Callback
-			$page, // Page
-			$section_id // Section
-		);
+		if ( !$this->isConfigured() ) {
 
+			add_settings_field(
+				$option_name . '_client_id', // ID
+				'Google Analytics Client ID', // Title
+				array( $this, 'displayClientID' ), // Callback
+				$page, // Page
+				$section_id // Section
+			);
+			add_settings_field(
+				$option_name . '_client_secret', // ID
+				'Google Analytics Client Secret', // Title
+				array( $this, 'displayClientSecret' ), // Callback
+				$page, // Page
+				$section_id // Section
+			);
+			add_settings_field(
+				$option_name . '_redirect_field', // ID
+				'Google Analytics Client Redirect URL', // Title
+				array( $this, 'displayRedirectURL' ), // Callback
+				$page, // Page
+				$section_id // Section
+			);
+		}
 		add_settings_field(
 			$option_name.'_post_age', // ID
 			'Show Page Views for last…', // Title
@@ -230,14 +233,13 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		if ( !class_exists( 'Google_Client' ) ) {
 			return;
 		}
-		echo 'Token: '.get_option( 'cftp_popular_ga_token').'<br>';
-		echo 'Auth Token: '.get_option( 'cftp_popular_ga_authtoken').'<br>';
 		if ( !$this->isConfigured() ) {
 
 			try {
 				$authUrl = $this->google_auth->getAuthURL();
 				?>
 				<a href="<?php echo $authUrl; ?>" class="button">Activate Google Analytics</a>
+				<p class="description">Remember to activate the Google Analytics API in your Google Cloud Console, and to add a support email under the credentials section. Failure to do so will generate errors when activating or using Google Analytics.</p>
 				<?php
 			} catch ( Google_IOException $e ) {
 				$this->google_auth->errors[] = $e;
