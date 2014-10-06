@@ -213,8 +213,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 * @return bool
 	 */
 	public function isConfigured() {
-
-		$this->google_auth->isConfigured();
+		return $this->google_auth->isConfigured();
 	}
 
 	/**
