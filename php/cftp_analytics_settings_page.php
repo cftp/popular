@@ -26,15 +26,15 @@ class cftp_analytics_settings_page {
 
 		$key = 'manageedit-postcolumnshidden';  // wp_usermeta.meta_key
 
-		$cols_to_hide = [ 'twitter_shares', 'facebook_likes', 'facebook_shares', 'decay_views', 'decay_shares' ];
-		$cols_to_show = [ 'google_last30', 'total_shares' ];
+		$cols_to_hide = array( 'twitter_shares', 'facebook_likes', 'facebook_shares', 'decay_views', 'decay_shares' );
+		$cols_to_show = array( 'google_last30', 'total_shares' );
 
 		$users = get_users();
 
 
 		foreach ( $users as $user ) {
 
-			$new_opt      = [ ];
+			$new_opt = array();
 
 			// Get the user's current settings, if they have any
 			$current = get_user_option( $key, $user->ID );
