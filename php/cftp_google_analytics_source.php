@@ -21,7 +21,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			add_filter( 'manage_posts_columns', array( $this, 'columns_head') );
 			add_action( 'manage_posts_custom_column', array( $this, 'columns_content' ), 10, 2);
 			add_filter( 'manage_edit-post_sortable_columns', array( $this, 'column_register_sortable' ) );
-			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+			add_action( 'all_admin_notices', array( $this, 'admin_notices' ) );
 		}
 		$this->google_auth = new cftp_google_analytics_auth();
 
@@ -129,6 +129,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$option_group, // Option group
 			$option_name // Option name
 		);
+
 		register_setting(
 			$option_group, // Option group
 			$option_name.'_client_id' // Option name
@@ -141,28 +142,30 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$option_group, // Option group
 			$option_name.'_post_age' // Option name
 		);
-		add_settings_field(
-			$option_name.'_client_id', // ID
-			'Google Analytics Client ID', // Title
-			array( $this, 'displayClientID' ), // Callback
-			$page, // Page
-			$section_id // Section
-		);
-		add_settings_field(
-			$option_name.'_client_secret', // ID
-			'Google Analytics Client Secret', // Title
-			array( $this, 'displayClientSecret' ), // Callback
-			$page, // Page
-			$section_id // Section
-		);
-		add_settings_field(
-			$option_name.'_redirect_field', // ID
-			'Google Analytics Client Redirect URL', // Title
-			array( $this, 'displayRedirectURL' ), // Callback
-			$page, // Page
-			$section_id // Section
-		);
+		if ( !$this->isConfigured() ) {
 
+			add_settings_field(
+				$option_name . '_client_id', // ID
+				'Google Analytics Client ID', // Title
+				array( $this, 'displayClientID' ), // Callback
+				$page, // Page
+				$section_id // Section
+			);
+			add_settings_field(
+				$option_name . '_client_secret', // ID
+				'Google Analytics Client Secret', // Title
+				array( $this, 'displayClientSecret' ), // Callback
+				$page, // Page
+				$section_id // Section
+			);
+			add_settings_field(
+				$option_name . '_redirect_field', // ID
+				'Google Analytics Client Redirect URL', // Title
+				array( $this, 'displayRedirectURL' ), // Callback
+				$page, // Page
+				$section_id // Section
+			);
+		}
 		add_settings_field(
 			$option_name.'_post_age', // ID
 			'Show Page Views for last…', // Title
@@ -194,7 +197,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	public function displayRedirectURL() {
 		?>
 		<input class="widefat" name="cftp_popular_google_analytics_client_redirect_url" value="<?php echo $this->google_auth->getRedirectURL(); ?>" disabled />
-		<p class="description">You'll need to create an API ID and secret, save them here, then use the above redirect URL in the google cloud panel before authenticating</p>
+		<p class="description">To activate Google Analytics support, you will need to fill out the above fields with credentials. When creating those credentials use the above redirect URL.</p>
+		<p class="description">You can create credentials to authenticate with Google by going to the <a href="https://console.developers.google.com/">Google Cloud Console</a>. You'll need to create a project,then create new OAuth credentials of type Web Application, using the redirect URL shown above.</p>
+		<p class="description">Remember to activate the Google Analytics API in your Google Cloud Console, and to add a support email under the credentials section. Failure to do so will generate errors when activating or using Google Analytics.</p>
 		<?php
 	}
 	public function displayPostAge() {
@@ -213,8 +218,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 * @return bool
 	 */
 	public function isConfigured() {
-
-		$this->google_auth->isConfigured();
+		return $this->google_auth->isConfigured();
 	}
 
 	/**
