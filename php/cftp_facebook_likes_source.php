@@ -154,7 +154,7 @@ class cftp_facebook_likes_source implements cftp_analytics_source {
 			$json = json_decode( $response['body'], true );
 
 			// Store Facebook stats
-			$stats = [ ];
+			$stats = array();
 
 			if ( is_array( $input ) ) {
 				// we want to store image filename in DB, not a complete URL
@@ -166,7 +166,7 @@ class cftp_facebook_likes_source implements cftp_analytics_source {
 			// Loop through stats by URL
 
 			// We'll need a total for the end (new fields will be added by ->increment_total)
-			$total = [ ];
+			$total = array();
 
 			foreach ( array_values( $json ) as $v ) {
 
@@ -185,7 +185,7 @@ class cftp_facebook_likes_source implements cftp_analytics_source {
 					}
 				}
 
-				$stats[ $desc ] = [
+				$stats[ $desc ] = array(
 					'like_count'        => $v['like_count'],
 					'share_count'       => $v['share_count'],
 					'comment_count'     => $v['comment_count'],
@@ -195,7 +195,7 @@ class cftp_facebook_likes_source implements cftp_analytics_source {
 					// Yes, this is the facebook_likes class, but I'm trying to cut down on API calls.
 					// Let's keep all the Picshare data together.
 					// Also this means we don't need to duplicate any code in facebook_shares etc. either.
-				];
+				);
 
 				$total = $this->increment_total( $total, $v );
 			}
