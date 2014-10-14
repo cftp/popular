@@ -84,6 +84,8 @@ class cftp_total_shares_source implements cftp_analytics_source {
 	 * @param $option_group
 	 * @param $section_id
 	 * @param $page
+	 *
+	 * @return null|void
 	 */
 	public function registerSettings( $option_group, $section_id, $page ) {
 		//
@@ -108,6 +110,8 @@ class cftp_total_shares_source implements cftp_analytics_source {
 
 	/**
 	 * @param $post_id
+	 *
+	 * @return int|mixed
 	 */
 	public function getPageViewsByPostID( $post_id ) {
 		// Changed this back to the version with typo in post_meta key so stats are visible. William 2014-08-16
