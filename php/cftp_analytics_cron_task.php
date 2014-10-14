@@ -51,7 +51,7 @@ class cftp_analytics_cron_task {
 
 		$common_args = array(
 			// Use these for all queries
-			'posts_per_page' => '25',                   // max no. of posts at a time
+			'posts_per_page' => '10',                   // max no. of posts at a time
 			'post_status'    => 'publish',
 			'post_type'      => 'any',
 			'meta_key'       => $key,
