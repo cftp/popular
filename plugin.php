@@ -8,6 +8,37 @@
  * Author URI: http://codeforthepeople.com/
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ * This comment is added for compatibility with the null framework https://github.com/scottsweb/null
+ * Widget Name: Popular Widget
+ *
+ * Copyright © 2013 Code for the People ltd
+ *
+ *                 _____________
+ *                /      ____   \
+ *          _____/       \   \   \
+ *         /\    \        \___\   \
+ *        /  \    \                \
+ *       /   /    /          _______\
+ *      /   /    /          \       /
+ *     /   /    /            \     /
+ *     \   \    \ _____    ___\   /
+ *      \   \    /\    \  /       \
+ *       \   \  /  \____\/    _____\
+ *        \   \/        /    /    / \
+ *         \           /____/    /___\
+ *          \                        /
+ *           \______________________/
+ *
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {

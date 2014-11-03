@@ -20,7 +20,10 @@ class cftp_analytics {
 		$this->setting_page = $factory->settingPage( $model );
 		$sources = $model->getSources();
 		foreach ( $sources as $source ) {
-			$this->cron_tasks[] = $factory->cronTask( $source );
+			$task = $factory->cronTask( $source );
+			if ( $source->isConfigured() ) {
+				$this->cron_tasks[] = $task;
+			}
 		}
 	}
 
