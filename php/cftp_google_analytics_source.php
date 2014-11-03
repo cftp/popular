@@ -390,27 +390,37 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		?>
 		<div class="wrap">
 			<h2>WP-LESS</h2>
+			<?php
+			if ( !$this->isConfigured() ) {
+				echo '<p>You haven\'t configured Google Analytics</p>';
+			} else {
+				?>
+				<p>Here are some test data retrievals.</p>
 
-			<p>Here are messages from attempts to build/rebuild stylesheets. Only the last 20 messages are kept.</p>
+				<table class="wp-list-table widefat fixed">
+					<thead>
+					<th width="120px">Data</th>
+					<th>Message</th>
+					</thead>
+					<tbody>
+					<?php
+					$props = $this->service->management_webproperties->listManagementWebproperties("~all");
+					print "<tr><td>Web Properties</td><td><pre>" . print_r($props, true) . "</pre></td></tr>";
 
-			<table class="wp-list-table widefat fixed">
-				<thead>
-				<th width="120px">Time</th>
-				<th>Message</th>
-				</thead>
-				<tbody>
-					<tr>
-						<td>Web Profile</td>
-						<td>
-							<?php
-							$property = $this->getWebProperty( home_url() );
-							echo $property->getWebsiteUrl();
-							?>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+					$accounts = $this->service->management_accounts->listManagementAccounts();
+					print "<tr><td>Accounts</td><td><pre>" . print_r($accounts, true)  . "</pre></td></tr>";
 
-		<?php
+					$segments = $this->service->management_segments->listManagementSegments();
+					print "<tr><td>Segments</td><td><pre>" . print_r($segments, true)  . "</pre></td></tr>";
+
+					$goals = $this->service->management_goals->listManagementGoals("~all", "~all", "~all");
+					print "<tr><td>Goals</td><td><pre>" . print_r($goals, true)  . "</pre></td></tr>";
+					?>
+					</tbody>
+				</table>
+
+				<?php
+			}
+		echo '</div>';
 	}
 }
