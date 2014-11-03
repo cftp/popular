@@ -22,6 +22,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			add_action( 'manage_posts_custom_column', array( $this, 'columns_content' ), 10, 2);
 			add_filter( 'manage_edit-post_sortable_columns', array( $this, 'column_register_sortable' ) );
 			add_action( 'all_admin_notices', array( $this, 'admin_notices' ) );
+			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		}
 		$this->google_auth = new cftp_google_analytics_auth();
 
@@ -132,15 +133,15 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 
 		register_setting(
 			$option_group, // Option group
-			$option_name.'_client_id' // Option name
+			$option_name . '_client_id' // Option name
 		);
 		register_setting(
 			$option_group, // Option group
-			$option_name.'_client_secret' // Option name
+			$option_name . '_client_secret' // Option name
 		);
 		register_setting(
 			$option_group, // Option group
-			$option_name.'_post_age' // Option name
+			$option_name . '_post_age' // Option name
 		);
 		if ( !$this->isConfigured() ) {
 
@@ -167,7 +168,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			);
 		}
 		add_settings_field(
-			$option_name.'_post_age', // ID
+			$option_name . '_post_age', // ID
 			'Show Page Views for last…', // Title
 			array( $this, 'displayPostAge' ), // Callback
 			$page, // Page
@@ -181,6 +182,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$page, // Page
 			$section_id // Section
 		);
+
+	}
+
+	public function admin_menu() {
+
+		add_submenu_page( '', 'Popular Google Analytics Tests', 'Popular Google Analytics Tests', 'manage_options', 'cftp_google_analytics_test', array( $this, 'test_page' ) );
 
 	}
 
@@ -249,6 +256,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		} else {
 			?>
 			<a class="button" href="options-general.php?page=cftp_popular_settings_page&cftp_pop_ga_reset=true" >Deactivate Google Analytics</a>
+			<a class="button" href="?page=cftp_google_analytics_test">Test</a>
 			<?php
 		}
 	}
@@ -312,7 +320,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	/**
 	 * @param $url
 	 *
-	 * @return null
+	 * @return Google_Service_Analytics_Webproperty|null
 	 */
 	private function getWebProperty( $url ) {
 		$this->initialiseAPIs();
@@ -375,5 +383,34 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		$permalink = get_permalink( $post_id );
 		$permalink = str_replace( site_url(), '', $permalink );
 		return $this->getPageViewsForURL( $permalink );
+	}
+
+	public function test_page() {
+		$this->initialiseAPIs();
+		?>
+		<div class="wrap">
+			<h2>WP-LESS</h2>
+
+			<p>Here are messages from attempts to build/rebuild stylesheets. Only the last 20 messages are kept.</p>
+
+			<table class="wp-list-table widefat fixed">
+				<thead>
+				<th width="120px">Time</th>
+				<th>Message</th>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Web Profile</td>
+						<td>
+							<?php
+							$property = $this->getWebProperty( home_url() );
+							echo $property->getWebsiteUrl();
+							?>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+		<?php
 	}
 }
