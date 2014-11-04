@@ -79,7 +79,8 @@ class Popular_Command extends WP_CLI_Command {
 		}
 
 		foreach ( $queue as $v ) {
-			echo( $this->factory->cronTask( $this->factory->{$v}() )->task() );
+			$task = $this->factory->cronTask( $this->factory->{$v}() );
+			echo $task->task();
 		}
 
 	}
