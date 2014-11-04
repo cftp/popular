@@ -429,8 +429,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						}
 						echo '</table>';
 						//echo "<pre>" . print_r( $data, true) . "</pre>";
-					} catch( Google_ServiceException $e ) {
-						echo 'Google_ServiceException thrown with message: '.$e->getMessage();
+					} catch( Google_Service_Exception $e ) {
+						echo 'Google_Service_Exception thrown with message: '.$e->getMessage();
 					}
 					echo "</td></tr>";
 
