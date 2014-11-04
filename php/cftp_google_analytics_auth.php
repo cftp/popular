@@ -68,11 +68,11 @@ class cftp_google_analytics_auth {
 	public function initialiseAPIs() {
 
 		if ( $this->client != null ) {
-			return;
+			return true;
 		}
 		if ( !class_exists( 'Google_Client' ) ) {
 			echo '<p><strong>Warning: The <code>Google_Client</code> class doesn\'t exist, did you run composer install to pull down the Google API library?</strong></p>';
-			return;
+			return false;
 		}
 
 		try {
@@ -96,13 +96,13 @@ class cftp_google_analytics_auth {
 			$this->service = new Google_Service_Analytics( $this->client );
 		} catch ( Google_IO_Exception $e ) {
 			$this->errors[] = $e;
-			return;
+			return false;
 		} catch ( Google_Service_Exception $e ) {
 			$this->errors[] = $e;
-			return;
+			return false;
 		} catch ( Google_Auth_Exception $e ) {
 			$this->errors[] = $e;
-			return;
+			return false;
 		}
 
 		$token = '';
@@ -117,13 +117,13 @@ class cftp_google_analytics_auth {
 				wp_safe_redirect( $redirect );
 			} catch ( Google_IO_Exception $e ) {
 				$this->errors[] = $e;
-				return;
+				return false;
 			} catch ( Google_Service_Exception $e ) {
 				$this->errors[] = $e;
-				return;
+				return false;
 			} catch ( Google_Auth_Exception $e ) {
 				$this->errors[] = $e;
-				return;
+				returnfalse;
 			}
 		} else {
 			$token = get_option( 'cftp_popular_ga_token' );
@@ -131,5 +131,6 @@ class cftp_google_analytics_auth {
 		if ( !empty( $token ) ) {
 			$this->client->setAccessToken( $token );
 		}
+		return true;
 	}
 }
