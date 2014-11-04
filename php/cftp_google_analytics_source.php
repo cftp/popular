@@ -35,7 +35,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			echo '<div class="error">';
 			foreach( $this->google_auth->errors as $error ) {
 				?>
-				<p>Error: Popular, Google API Exception: <code>"<?php echo 'Code: '.$e->getCode().', Message: '.$error->getMessage(); ?>"</code></p>
+				<p>Error: Popular, Google API Exception: <code>"<?php echo 'Type:'.get_class( $error ).'Code: '.$error->getCode().', Message: '.$error->getMessage(); ?>"</code></p>
 				<?php
 			}
 			echo '</div>';
