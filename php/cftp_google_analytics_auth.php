@@ -8,10 +8,10 @@
 
 class cftp_google_analytics_auth {
 
-	public function _construct() {
+	public function __construct() {
 		// @TODO: there's something inherently wrong about creating the google client in here
 		// must consider using an object factory and passing in as a parameter instead
-		if ( isset( $_GET['code'] ) ) {
+		if ( !empty( $_GET['code'] ) ) {
 			$this->initialiseAPIs();
 		}
 	}
