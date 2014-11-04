@@ -187,9 +187,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	public function admin_menu() {
-
 		add_submenu_page( '', 'Popular Google Analytics Tests', 'Popular Google Analytics Tests', 'manage_options', 'cftp_google_analytics_test', array( $this, 'test_page' ) );
-
 	}
 
 	public function displayClientID() {
@@ -197,11 +195,13 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		<input class="widefat" name="cftp_popular_google_analytics_client_id" value="<?php echo $this->google_auth->getClientID(); ?>"/>
 		<?php
 	}
+
 	public function displayClientSecret() {
 		?>
 		<input class="widefat" name="cftp_popular_google_analytics_client_secret" value="<?php echo $this->google_auth->getClientSecret(); ?>"/>
 		<?php
 	}
+
 	public function displayRedirectURL() {
 		?>
 		<input class="widefat" name="cftp_popular_google_analytics_client_redirect_url" value="<?php echo $this->google_auth->getRedirectURL(); ?>" disabled />
@@ -210,6 +210,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		<p class="description">Remember to activate the Google Analytics API in your Google Cloud Console, and to add a support email under the credentials section. Failure to do so will generate errors when activating or using Google Analytics.</p>
 		<?php
 	}
+
 	public function displayPostAge() {
 		?>
 		<input name="cftp_popular_google_analytics_post_age" value="<?php echo $this->getPostAge(); ?>" placeholder="<?php echo $this->getPostAge(); ?>" />
@@ -250,7 +251,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				?>
 				<a href="<?php echo $authUrl; ?>" class="button">Activate Google Analytics</a>
 				<?php
-			} catch ( Google_IOException $e ) {
+			} catch ( Google_IO_Exception $e ) {
 				$this->google_auth->errors[] = $e;
 				return;
 			}
@@ -287,7 +288,6 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 					'max-results' => '1'
 				)
 			);
-			//echo 'GA from = ', $from,"\n";
 
 			$result = $data->totalsForAllResults['ga:pageviews'];
 			return $result;
@@ -298,9 +298,11 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	/**
-	 * @param $url
+	 * Return a Profile object given a URL
 	 *
-	 * @return null
+	 * @param $url string A URL to compare against, must match a web property in full
+	 *
+	 * @return Google_Service_Analytics_Profile|null
 	 */
 	private function getProfileIDByURL( $url ) {
 		$this->initialiseAPIs();
@@ -309,9 +311,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			try {
 				$profile = $this->getFirstProfile( $current );
 				return $profile;
-			} catch ( Google_ServiceException $e ) {
+			} catch ( Google_Service_Exception $e ) {
 				$this->google_auth->errors[] = $e;
-			} catch ( Google_IOException $e ) {
+			} catch ( Google_IO_Exception $e ) {
 				$this->google_auth->errors[] = $e;
 			}
 		}
@@ -335,9 +337,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 					return $prop;
 				}
 			}
-		} catch ( Google_ServiceException $e ) {
+		} catch ( Google_Service_Exception $e ) {
 			$this->google_auth->errors[] = $e;
-		} catch ( Google_IOException $e ) {
+		} catch ( Google_IO_Exception $e ) {
 			$this->google_auth->errors[] = $e;
 		}
 		return null;
@@ -408,12 +410,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 
 					$service = $this->google_auth->service;
 					$current_profile = $this->getProfileIDByURL( home_url() );
-					echo "<tr><td>Current Profile</td><td><pre>" . $current_profile->getAccountId() . "</pre></td></tr>";
+					echo "<tr><td>Current Profile</td><td><pre>" . $current_profile->getName() . ", " . $current_profile->getAccountId() . "</pre></td></tr>";
 
 					echo "<tr><td>Most Popular between 1/1/2014 and 1/1/2015</td><td>";
 					try {
 						$data = $service->data_ga->get(
-							'ga:'.$current_profile->getAccountId(),
+							'ga:'.$current_profile->getId(),
 							'2014-01-01',
 							'2015-01-01',
 							'ga:pageviews',
