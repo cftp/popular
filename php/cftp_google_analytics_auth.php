@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tomnowell
- * Date: 02/10/2014
- * Time: 15:05
- */
 
 class cftp_google_analytics_auth {
 
