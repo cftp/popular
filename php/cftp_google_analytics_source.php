@@ -404,17 +404,18 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 					</thead>
 					<tbody>
 					<?php
-					$props = $this->google_auth->service->management_webproperties->listManagementWebproperties("~all");
-					print "<tr><td>Web Properties</td><td><pre>" . print_r($props, true) . "</pre></td></tr>";
+					$service = $this->google_auth->service;
+					$props = $service->management_webproperties->listManagementWebproperties("~all");
+					echo "<tr><td>Web Properties</td><td><pre>" . print_r( $props, true ) . "</pre></td></tr>";
 
-					$accounts = $this->google_auth->service->management_accounts->listManagementAccounts();
-					print "<tr><td>Accounts</td><td><pre>" . print_r($accounts, true)  . "</pre></td></tr>";
+					$accounts = $service->management_accounts->listManagementAccounts();
+					echo "<tr><td>Accounts</td><td><pre>" . print_r($accounts, true)  . "</pre></td></tr>";
 
-					$segments = $this->google_auth->service->management_segments->listManagementSegments();
-					print "<tr><td>Segments</td><td><pre>" . print_r($segments, true)  . "</pre></td></tr>";
+					$segments = $service->management_segments->listManagementSegments();
+					echo "<tr><td>Segments</td><td><pre>" . print_r($segments, true)  . "</pre></td></tr>";
 
-					$goals = $this->google_auth->service->management_goals->listManagementGoals("~all", "~all", "~all");
-					print "<tr><td>Goals</td><td><pre>" . print_r($goals, true)  . "</pre></td></tr>";
+					$goals = $service->management_goals->listManagementGoals("~all", "~all", "~all");
+					echo "<tr><td>Goals</td><td><pre>" . print_r($goals, true)  . "</pre></td></tr>";
 					?>
 					</tbody>
 				</table>
