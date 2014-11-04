@@ -123,7 +123,7 @@ class cftp_google_analytics_auth {
 				return false;
 			} catch ( Google_Auth_Exception $e ) {
 				$this->errors[] = $e;
-				returnfalse;
+				return false;
 			}
 		} else {
 			$token = get_option( 'cftp_popular_ga_token' );
