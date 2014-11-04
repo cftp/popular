@@ -167,18 +167,19 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				$section_id // Section
 			);
 		}
-		add_settings_field(
-			$option_name . '_post_age', // ID
-			'Show Page Views for last…', // Title
-			array( $this, 'displayPostAge' ), // Callback
-			$page, // Page
-			$section_id // Section
-		);
 
 		add_settings_field(
 			$option_name, // ID
 			'Google Analytics', // Title
 			array( $this, 'displaySettings' ), // Callback
+			$page, // Page
+			$section_id // Section
+		);
+
+		add_settings_field(
+			$option_name . '_post_age', // ID
+			'Show Page Views for last…', // Title
+			array( $this, 'displayPostAge' ), // Callback
 			$page, // Page
 			$section_id // Section
 		);
