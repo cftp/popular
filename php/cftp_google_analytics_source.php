@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Class cftp_google_analytics_source
  */
