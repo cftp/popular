@@ -38,11 +38,13 @@ class cftp_analytics_cron_task {
 	}
 
 	/**
-	 * Actually run task for a particular source.
+	 * Actually run the task for a particular source.
 	 * Searches for posts that have no data, or are ready to be refreshed. Calls process_posts function.
 	 * Note I was unable to make this work correctly in a combined 'OR' meta_query.
 	 *
 	 * @author William Turrell
+	 *
+	 * @return null|void
 	 */
 	public function task() {
 
