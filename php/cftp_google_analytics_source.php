@@ -245,14 +245,34 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		}
 		if ( !$this->isConfigured() ) {
 
-			try {
-				$authUrl = $this->google_auth->getAuthURL();
-				?>
-				<a href="<?php echo $authUrl; ?>" class="button">Activate Google Analytics</a>
+			$show_activate = true;
+
+			$secret = $this->google_auth->getClientSecret();
+			$client_id = $this->google_auth->getClientID();
+
+			if ( empty( $secret ) ) {
+				$show_activate = false;
+			} else if ( empty( $client_id ) ) {
+				$show_activate = false;
+			}
+
+			if ( $show_activate ) {
+
+				try {
+					$authUrl = $this->google_auth->getAuthURL();
+					?>
+					<a href="<?php echo $authUrl; ?>" class="button">Activate Google Analytics</a>
 				<?php
-			} catch ( Google_IO_Exception $e ) {
-				$this->google_auth->errors[] = $e;
-				return;
+				} catch ( Google_IO_Exception $e ) {
+					$this->google_auth->errors[] = $e;
+
+					return;
+				}
+			} else {
+				?>
+				<a class="button disabled">Activate Google Analytics</a>
+				<p class="description">You need to enter a valid client ID and secret before activation can occur. Enter the values above and save the page to continue.</p>
+				<?php
 			}
 		} else {
 			?>
