@@ -429,7 +429,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			} else {
 				try {
 					?>
-					<p>Here are some test data retrievals of useful information and debug data.</p>
+					<p>Here are some test data retrievals of useful information and debug data. All data is freshly grabbed directly from Google. If you're having issues, check the profile ID and web profile being used matches your site, and make sure you've activated the Google Analytics API.</p>
 
 					<table class="wp-list-table widefat fixed">
 						<thead>
