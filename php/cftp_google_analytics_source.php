@@ -416,61 +416,67 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			if ( !$this->isConfigured() ) {
 				echo '<p>You haven\'t configured Google Analytics</p>';
 			} else {
-				?>
-				<p>Here are some test data retrievals of useful information and debug data.</p>
-
-				<table class="wp-list-table widefat fixed">
-					<thead>
-					<th width="120px">Data</th>
-					<th>Message</th>
-					</thead>
-					<tbody>
-					<?php
-
-					$service = $this->google_auth->service;
-					$current_profile = $this->getProfileIDByURL( home_url() );
-					echo "<tr><td>Current Profile</td><td><pre>" . $current_profile->getName() . ", " . $current_profile->getAccountId() . "</pre></td></tr>";
-
-					echo "<tr><td>Most Popular between 1/1/2014 and 1/1/2015</td><td>";
-					try {
-						$data = $service->data_ga->get(
-							'ga:'.$current_profile->getId(),
-							'2014-01-01',
-							'2015-01-01',
-							'ga:pageviews',
-							array(
-								'dimensions' => 'ga:pageTitle,ga:pagePath',
-								'sort' => '-ga:pageviews',
-								'filters' => 'ga:pagePath!=/',
-								'max-results' => '10'));
-						echo '<table>';
-						echo '<thead><tr><th>'.$data->columnHeaders[0]->name.'</th><th>'.$data->columnHeaders[1]->name.'</th><th>'.$data->columnHeaders[2]->name.'</th></tr></thead>';
-						foreach ( $data->rows as $row ) {
-							echo '<tr><td>'.$row[0].'</td><td>'.$row[1].'</td><td>'.$row[2].'</td></tr>';
-						}
-						echo '</table>';
-						//echo "<pre>" . print_r( $data, true) . "</pre>";
-					} catch( Google_Service_Exception $e ) {
-						echo 'Google_Service_Exception thrown with message: '.$e->getMessage();
-					}
-					echo "</td></tr>";
-
-					$props = $service->management_webproperties->listManagementWebproperties("~all");
-					echo "<tr><td>Web Properties</td><td><pre>" . print_r( $props, true ) . "</pre></td></tr>";
-
-					$accounts = $service->management_accounts->listManagementAccounts();
-					echo "<tr><td>Accounts</td><td><pre>" . print_r($accounts, true)  . "</pre></td></tr>";
-
-					$segments = $service->management_segments->listManagementSegments();
-					echo "<tr><td>Segments</td><td><pre>" . print_r($segments, true)  . "</pre></td></tr>";
-
-					$goals = $service->management_goals->listManagementGoals("~all", "~all", "~all");
-					echo "<tr><td>Goals</td><td><pre>" . print_r($goals, true)  . "</pre></td></tr>";
+				try {
 					?>
-					</tbody>
-				</table>
+					<p>Here are some test data retrievals of useful information and debug data.</p>
 
-				<?php
+					<table class="wp-list-table widefat fixed">
+						<thead>
+						<th width="120px">Data</th>
+						<th>Message</th>
+						</thead>
+						<tbody>
+						<?php
+
+						$service         = $this->google_auth->service;
+						$current_profile = $this->getProfileIDByURL( home_url() );
+						echo "<tr><td>Current Profile</td><td><pre>" . $current_profile->getName() . ", " . $current_profile->getAccountId() . "</pre></td></tr>";
+
+						echo "<tr><td>Most Popular between 1/1/2014 and 1/1/2015</td><td>";
+						try {
+							$data = $service->data_ga->get(
+								'ga:' . $current_profile->getId(),
+								'2014-01-01',
+								'2015-01-01',
+								'ga:pageviews',
+								array(
+									'dimensions'  => 'ga:pageTitle,ga:pagePath',
+									'sort'        => '-ga:pageviews',
+									'filters'     => 'ga:pagePath!=/',
+									'max-results' => '10' ) );
+							echo '<table>';
+							echo '<thead><tr><th>' . $data->columnHeaders[0]->name . '</th><th>' . $data->columnHeaders[1]->name . '</th><th>' . $data->columnHeaders[2]->name . '</th></tr></thead>';
+							foreach ( $data->rows as $row ) {
+								echo '<tr><td>' . $row[0] . '</td><td>' . $row[1] . '</td><td>' . $row[2] . '</td></tr>';
+							}
+							echo '</table>';
+							//echo "<pre>" . print_r( $data, true) . "</pre>";
+						} catch ( Google_Service_Exception $e ) {
+							echo 'Google_Service_Exception thrown with message: ' . $e->getMessage();
+						}
+						echo "</td></tr>";
+
+						$props = $service->management_webproperties->listManagementWebproperties( "~all" );
+						echo "<tr><td>Web Properties</td><td><pre>" . print_r( $props, true ) . "</pre></td></tr>";
+
+						$accounts = $service->management_accounts->listManagementAccounts();
+						echo "<tr><td>Accounts</td><td><pre>" . print_r( $accounts, true ) . "</pre></td></tr>";
+
+						$segments = $service->management_segments->listManagementSegments();
+						echo "<tr><td>Segments</td><td><pre>" . print_r( $segments, true ) . "</pre></td></tr>";
+
+						$goals = $service->management_goals->listManagementGoals( "~all", "~all", "~all" );
+						echo "<tr><td>Goals</td><td><pre>" . print_r( $goals, true ) . "</pre></td></tr>";
+						?>
+						</tbody>
+					</table>
+					<?php
+				} catch ( Google_Service_Exception $e ) {
+					$this->google_auth->errors[] = $e;
+				} catch ( Google_IO_Exception $e ) {
+					$this->google_auth->errors[] = $e;
+				}
+				$this->admin_notices();
 			}
 		echo '</div>';
 	}
