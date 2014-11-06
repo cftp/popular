@@ -475,6 +475,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 					$this->google_auth->errors[] = $e;
 				} catch ( Google_IO_Exception $e ) {
 					$this->google_auth->errors[] = $e;
+				} catch ( Google_Auth_Exception $e ) {
+					$this->google_auth->errors[] = $e;
 				}
 				$this->admin_notices();
 			}
