@@ -42,11 +42,11 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	/**
-	 *
+	 * @return bool
 	 */
 	public function initialiseAPIs() {
 
-		$this->google_auth->initialiseAPIs();
+		return $this->google_auth->initialiseAPIs();
 
 	}
 
@@ -408,11 +408,17 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	public function test_page() {
-		$this->initialiseAPIs();
+
 		?>
 		<div class="wrap">
 			<h2>CFTP Popular Tests</h2>
 			<?php
+
+			if ( !$this->initialiseAPIs() ) {
+				echo '<p><strong>Failed to initialise APIs</strong></p>';
+				echo '</div>';
+				return;
+			}
 			if ( !$this->isConfigured() ) {
 				echo '<p>You haven\'t configured Google Analytics</p>';
 			} else {
