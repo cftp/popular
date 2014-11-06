@@ -67,6 +67,11 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		return $option;
 	}
 
+	/**
+	 * @param $orders
+	 *
+	 * @return mixed
+	 */
 	function query_widget_order( $orders ) {
 		$orders['google_last30'] = 'GA Page Views last '.$this->getPostAge();
 		return $orders;
@@ -436,34 +441,51 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 
 						$service         = $this->google_auth->service;
 						$current_profile = $this->getProfileIDByURL( home_url() );
-						echo "<tr><td>Current Profile</td><td><pre>" . $current_profile->getName() . ", " . $current_profile->getAccountId() . "</pre></td></tr>";
-
-						echo "<tr><td>Most Popular between 1/1/2014 and 1/1/2015</td><td>";
-						try {
-							$data = $service->data_ga->get(
-								'ga:' . $current_profile->getId(),
-								'2014-01-01',
-								'2015-01-01',
-								'ga:pageviews',
-								array(
-									'dimensions'  => 'ga:pageTitle,ga:pagePath',
-									'sort'        => '-ga:pageviews',
-									'filters'     => 'ga:pagePath!=/',
-									'max-results' => '10' ) );
-							echo '<table>';
-							echo '<thead><tr><th>' . $data->columnHeaders[0]->name . '</th><th>' . $data->columnHeaders[1]->name . '</th><th>' . $data->columnHeaders[2]->name . '</th></tr></thead>';
-							foreach ( $data->rows as $row ) {
-								echo '<tr><td>' . $row[0] . '</td><td>' . $row[1] . '</td><td>' . $row[2] . '</td></tr>';
-							}
-							echo '</table>';
-							//echo "<pre>" . print_r( $data, true) . "</pre>";
-						} catch ( Google_Service_Exception $e ) {
-							echo 'Google_Service_Exception thrown with message: ' . $e->getMessage();
+						echo "<tr><td>Current Profile</td><td><pre>";
+						if ( $current_profile != null ) {
+							echo $current_profile->getName() . ", " . $current_profile->getAccountId();
+						} else {
+							echo "Current profile couldn't be found";
 						}
-						echo "</td></tr>";
+						echo "</pre></td></tr>";
+
+						if ( $current_profile != null ) {
+							echo "<tr><td>Most Popular between 1/1/2014 and 1/1/2015</td><td>";
+							try {
+								$data = $service->data_ga->get(
+									'ga:' . $current_profile->getId(),
+									'2014-01-01',
+									'2015-01-01',
+									'ga:pageviews',
+									array(
+										'dimensions'  => 'ga:pageTitle,ga:pagePath',
+										'sort'        => '-ga:pageviews',
+										'filters'     => 'ga:pagePath!=/',
+										'max-results' => '10' ) );
+								echo '<table>';
+								echo '<thead><tr><th>' . $data->columnHeaders[0]->name . '</th><th>' . $data->columnHeaders[1]->name . '</th><th>' . $data->columnHeaders[2]->name . '</th></tr></thead>';
+								foreach ( $data->rows as $row ) {
+									echo '<tr><td>' . $row[0] . '</td><td>' . $row[1] . '</td><td>' . $row[2] . '</td></tr>';
+								}
+								echo '</table>';
+								//echo "<pre>" . print_r( $data, true) . "</pre>";
+							} catch ( Google_Service_Exception $e ) {
+								$this->google_auth->errors[] = $e;
+							} catch ( Google_IO_Exception $e ) {
+								$this->google_auth->errors[] = $e;
+							} catch ( Google_Auth_Exception $e ) {
+								$this->google_auth->errors[] = $e;
+							}
+							echo "</td></tr>";
+						}
 
 						$props = $service->management_webproperties->listManagementWebproperties( "~all" );
-						echo "<tr><td>Web Properties</td><td><pre>" . print_r( $props, true ) . "</pre></td></tr>";
+						echo "<tr><td>Web Properties</td><td><pre>";
+						foreach ( $props->items as $prop ) {
+							echo $prop->websiteUrl."\n";
+						}
+						echo "</pre></td></tr>";
+						echo "<tr><td>Web Properties Raw</td><td><pre>" . print_r( $props, true ) . "</pre></td></tr>";
 
 						$accounts = $service->management_accounts->listManagementAccounts();
 						echo "<tr><td>Accounts</td><td><pre>" . print_r( $accounts, true ) . "</pre></td></tr>";
