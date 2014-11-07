@@ -470,7 +470,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						$current_profile = $this->getProfileIDByURL( home_url() );
 						echo "<tr><td>Current Profile</td><td><pre>";
 						if ( $current_profile != null ) {
-							echo $current_profile->getName() . ", " . $current_profile->getAccountId();
+							echo $current_profile->getName() . ", " . $current_profile->getAccountId().", ".$current_profile->getId();
 						} else {
 							echo "Current profile couldn't be found";
 						}
@@ -509,11 +509,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						}
 
 						$props = $service->management_webproperties->listManagementWebproperties( "~all" );
-						echo "<tr><td>Web Properties</td><td><pre>";
+						echo "<tr><td>Web Properties</td><td><table>";
+						echo "<thead><tr><th>URL</th><th>Account ID</th><th>Property ID</th></tr></thead>";
 						foreach ( $props->items as $prop ) {
-							echo $prop->websiteUrl."\n";
+							echo '<tr><td>'.$prop->websiteUrl."</td><td>".$prop->getAccountId()."</td><td>".$prop->getId()."</td></tr>";
 						}
-						echo "</pre></td></tr>";
+						echo "</table></td></tr>";
 						echo "<tr><td>Web Properties Raw</td><td><pre>" . print_r( $props, true ) . "</pre></td></tr>";
 
 						$accounts = $service->management_accounts->listManagementAccounts();
