@@ -81,7 +81,7 @@ class cftp_google_analytics_auth {
 			// client id, client secret, and to register your redirect uri.
 			$this->client->setClientId( $this->getClientID() );
 			$this->client->setClientSecret( $this->getClientSecret() );
-			$this->client->setRedirectUri( $this->getRedirectURL() );
+			//$this->client->setRedirectUri( $this->getRedirectURL() );
 
 			$scope = $this->getScope();
 
