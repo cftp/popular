@@ -475,6 +475,15 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						}
 						echo "</pre></td></tr>";
 
+						$current_property = $this->getWebProperty( home_url() );
+						echo "<tr><td>Current Web Property</td><td><pre>";
+						if ( $current_property != null ) {
+							echo $current_property->getName() . ", " . $current_property->getId();
+						} else {
+							echo "Current web property couldn't be found";
+						}
+						echo "</pre></td></tr>";
+
 						if ( $current_profile != null ) {
 							echo "<tr><td>Most Popular between 1/1/2014 and 1/1/2015</td><td>";
 							try {
