@@ -111,7 +111,7 @@ class cftp_google_analytics_auth {
 				$new_token = $this->client->getAccessToken();
 				update_option('cftp_popular_ga_token', $new_token );
 				$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-				wp_safe_redirect( $redirect );
+				wp_redirect( $redirect );
 			} catch ( Google_IO_Exception $e ) {
 				$this->errors[] = $e;
 				return false;
