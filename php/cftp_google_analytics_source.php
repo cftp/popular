@@ -440,7 +440,6 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	public function test_page() {
-
 		?>
 		<div class="wrap">
 			<h2>CFTP Popular Tests</h2>
