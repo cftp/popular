@@ -268,9 +268,14 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 					?>
 					<a href="<?php echo $authUrl; ?>" class="button">Activate Google Analytics</a>
 				<?php
+				} catch ( Google_Service_Exception $e ) {
+					$this->google_auth->errors[] = $e;
+					return;
 				} catch ( Google_IO_Exception $e ) {
 					$this->google_auth->errors[] = $e;
-
+					return;
+				} catch ( Google_Auth_Exception $e ) {
+					$this->google_auth->errors[] = $e;
 					return;
 				}
 			} else {
@@ -295,26 +300,35 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 */
 	private function getPageViewsURL( Google_Service_Analytics_Profile $profile, $url ) {
 		$this->initialiseAPIs();
-		$url = trailingslashit( $url );
-		$to = date('Y-m-d');
-		$from = strtotime( $to.' -'.$this->getPostAge() );
-		$from = date( 'Y-m-d', $from );
-		if ( isset( $this->google_auth->service->data_ga ) ) {
-			$data = $this->google_auth->service->data_ga->get(
-				'ga:'.$profile->id,
-				$from,
-				$to,
-				'ga:pageviews',
-				array(
-					'dimensions' => 'ga:pageTitle,ga:pagePath',
-					'sort' => '-ga:pageviews',
-					'filters' => 'ga:pagePath=~'.$url,
-					'max-results' => '1'
-				)
-			);
+		try {
+			$url  = trailingslashit( $url );
+			$to   = date( 'Y-m-d' );
+			$from = strtotime( $to . ' -' . $this->getPostAge() );
+			$from = date( 'Y-m-d', $from );
+			if ( isset( $this->google_auth->service->data_ga ) ) {
+				$data = $this->google_auth->service->data_ga->get(
+					'ga:' . $profile->id,
+					$from,
+					$to,
+					'ga:pageviews',
+					array(
+						'dimensions'  => 'ga:pageTitle,ga:pagePath',
+						'sort'        => '-ga:pageviews',
+						'filters'     => 'ga:pagePath=~' . $url,
+						'max-results' => '1'
+					)
+				);
 
-			$result = $data->totalsForAllResults['ga:pageviews'];
-			return $result;
+				$result = $data->totalsForAllResults['ga:pageviews'];
+
+				return $result;
+			}
+		} catch ( Google_Service_Exception $e ) {
+			$this->google_auth->errors[] = $e;
+		} catch ( Google_IO_Exception $e ) {
+			$this->google_auth->errors[] = $e;
+		} catch ( Google_Auth_Exception $e ) {
+			$this->google_auth->errors[] = $e;
 		}
 		return false;
 
@@ -338,6 +352,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			} catch ( Google_Service_Exception $e ) {
 				$this->google_auth->errors[] = $e;
 			} catch ( Google_IO_Exception $e ) {
+				$this->google_auth->errors[] = $e;
+			} catch ( Google_Auth_Exception $e ) {
 				$this->google_auth->errors[] = $e;
 			}
 		}
@@ -364,6 +380,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		} catch ( Google_Service_Exception $e ) {
 			$this->google_auth->errors[] = $e;
 		} catch ( Google_IO_Exception $e ) {
+			$this->google_auth->errors[] = $e;
+		} catch ( Google_Auth_Exception $e ) {
 			$this->google_auth->errors[] = $e;
 		}
 		return null;
