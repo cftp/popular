@@ -277,6 +277,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				} catch ( Google_Auth_Exception $e ) {
 					$this->google_auth->errors[] = $e;
 					return;
+				} catch ( Google_Exception $e ) {
+					$this->google_auth->errors[] = $e;
+					return;
 				}
 			} else {
 				?>
@@ -329,6 +332,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$this->google_auth->errors[] = $e;
 		} catch ( Google_Auth_Exception $e ) {
 			$this->google_auth->errors[] = $e;
+		} catch ( Google_Exception $e ) {
+			$this->google_auth->errors[] = $e;
 		}
 		return false;
 
@@ -354,6 +359,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			} catch ( Google_IO_Exception $e ) {
 				$this->google_auth->errors[] = $e;
 			} catch ( Google_Auth_Exception $e ) {
+				$this->google_auth->errors[] = $e;
+			} catch ( Google_Exception $e ) {
 				$this->google_auth->errors[] = $e;
 			}
 		}
@@ -382,6 +389,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		} catch ( Google_IO_Exception $e ) {
 			$this->google_auth->errors[] = $e;
 		} catch ( Google_Auth_Exception $e ) {
+			$this->google_auth->errors[] = $e;
+		} catch ( Google_Exception $e ) {
 			$this->google_auth->errors[] = $e;
 		}
 		return null;
@@ -493,6 +502,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 								$this->google_auth->errors[] = $e;
 							} catch ( Google_Auth_Exception $e ) {
 								$this->google_auth->errors[] = $e;
+							} catch ( Google_Exception $e ) {
+								$this->google_auth->errors[] = $e;
 							}
 							echo "</td></tr>";
 						}
@@ -522,6 +533,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				} catch ( Google_IO_Exception $e ) {
 					$this->google_auth->errors[] = $e;
 				} catch ( Google_Auth_Exception $e ) {
+					$this->google_auth->errors[] = $e;
+				} catch ( Google_Exception $e ) {
 					$this->google_auth->errors[] = $e;
 				}
 				$this->admin_notices();

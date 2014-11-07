@@ -97,6 +97,9 @@ class cftp_google_analytics_auth {
 		} catch ( Google_Auth_Exception $e ) {
 			$this->errors[] = $e;
 			return false;
+		} catch ( Google_Exception $e ) {
+			$this->errors[] = $e;
+			return false;
 		}
 
 		$token = '';
@@ -118,12 +121,30 @@ class cftp_google_analytics_auth {
 			} catch ( Google_Auth_Exception $e ) {
 				$this->errors[] = $e;
 				return false;
+			} catch ( Google_Exception $e ) {
+				$this->errors[] = $e;
+				return false;
 			}
 		} else {
 			$token = get_option( 'cftp_popular_ga_token' );
 		}
+
 		if ( !empty( $token ) ) {
-			$this->client->setAccessToken( $token );
+			try {
+				$this->client->setAccessToken( $token );
+			} catch ( Google_IO_Exception $e ) {
+				$this->errors[] = $e;
+				return false;
+			} catch ( Google_Service_Exception $e ) {
+				$this->errors[] = $e;
+				return false;
+			} catch ( Google_Auth_Exception $e ) {
+				$this->errors[] = $e;
+				return false;
+			} catch ( Google_Exception $e ) {
+				$this->errors[] = $e;
+				return false;
+			}
 		}
 		return true;
 	}
