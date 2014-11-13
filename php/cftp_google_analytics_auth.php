@@ -6,7 +6,7 @@ class cftp_google_analytics_auth {
 		// @TODO: there's something inherently wrong about creating the google client in here
 		// must consider using an object factory and passing in as a parameter instead
 		if ( !empty( $_GET['code'] ) ) {
-			$this->initialiseAPIs( true );
+			$this->initialiseAPIs();
 		}
 	}
 
@@ -59,7 +59,7 @@ class cftp_google_analytics_auth {
 	/**
 	 * @return bool
 	 */
-	public function initialiseAPIs( $add_redirect=false ) {
+	public function initialiseAPIs() {
 
 		if ( $this->client != null ) {
 			return true;
@@ -81,9 +81,7 @@ class cftp_google_analytics_auth {
 			// client id, client secret, and to register your redirect uri.
 			$this->client->setClientId( $this->getClientID() );
 			$this->client->setClientSecret( $this->getClientSecret() );
-			if ( $add_redirect ) {
-				$this->client->setRedirectUri( $this->getRedirectURL() );
-			}
+			//$this->client->setRedirectUri( $this->getRedirectURL() );
 
 			$scope = $this->getScope();
 
