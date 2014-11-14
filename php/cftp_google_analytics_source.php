@@ -73,7 +73,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 * @return mixed
 	 */
 	function query_widget_order( $orders ) {
-		$orders['google_last30'] = 'GA Page Views last '.$this->getPostAge();
+		$orders['googleanalytics'] = 'GA Page Views last '.$this->getPostAge();
 		return $orders;
 	}
 
