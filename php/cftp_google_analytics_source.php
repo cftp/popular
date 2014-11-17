@@ -460,8 +460,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 
 					<table class="wp-list-table widefat fixed">
 						<thead>
-						<th width="120px">Data</th>
-						<th>Message</th>
+							<th width="120px">Data</th>
+							<th>Message</th>
 						</thead>
 						<tbody>
 						<?php
@@ -479,7 +479,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						$current_property = $this->getWebProperty( home_url() );
 						echo "<tr><td>Current Web Property</td><td><pre>";
 						if ( $current_property != null ) {
-							echo $current_property->getName() . ", " . $current_property->getId();
+							echo $current_property->getName() . ", " . $current_property->getId(). ", ".$current_property->getWebsiteUrl();
 						} else {
 							echo "Current web property couldn't be found";
 						}
