@@ -377,12 +377,17 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		if ( strpos( $url,'/') == 0 ) {
 			$url = site_url();
 		}
+		$profiles = array();
+		$matches = array();
 		try {
 			$props = $this->google_auth->service->management_webproperties->listManagementWebproperties("~all");
 			foreach ( $props->items as $prop ) {
-				if ( $url == $prop->websiteUrl ) {
-					return $prop;
+				$match = $this->match_urls( $url, $prop->websiteUrl );
+				if ( $match == 0 ) {
+					continue;
 				}
+				$profiles[ $prop->websiteUrl ] = $prop;
+				$matches[ $prop->websiteUrl ] = $match;
 			}
 		} catch ( Google_Service_Exception $e ) {
 			$this->google_auth->errors[] = $e;
@@ -393,7 +398,33 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		} catch ( Google_Exception $e ) {
 			$this->google_auth->errors[] = $e;
 		}
+
+		if ( !empty( $matches ) ) {
+			arsort( $matches );
+			foreach ( $matches as $key => $value ) {
+				$profile = $profiles[$key];
+				return $profile;
+			}
+		}
 		return null;
+	}
+
+	/**
+	 * @param $url The URL we're basing our search on
+	 * @param $property The property URL to test
+	 *
+	 * @return number
+	 */
+	private function match_urls( $url, $property ) {
+		$url = parse_url( $url, PHP_URL_HOST );
+		$property = parse_url( $property, PHP_URL_HOST );
+		if ( strstr( $url, $property ) ) {
+			if ( $url == $property ) {
+				return 2;
+			}
+			return 1;
+		}
+		return 0;
 	}
 
 	/**
