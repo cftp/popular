@@ -470,7 +470,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						$current_profile = $this->getProfileIDByURL( home_url() );
 						echo "<tr><td>Current Profile</td><td><pre>";
 						if ( $current_profile != null ) {
-							echo $current_profile->getName() . ", " . $current_profile->getAccountId().", ".$current_profile->getId();
+							echo '<table><tr><td>'.$current_profile->getName() . "</td><td>" . $current_profile->getAccountId()."</td><td>".$current_profile->getId().'</td></tr></table>';
 						} else {
 							echo "Current profile couldn't be found";
 						}
@@ -484,6 +484,10 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 							echo "Current web property couldn't be found";
 						}
 						echo "</pre></td></tr>";
+
+						echo "<tr><td>Client ID</td><td><pre>" . $this->google_auth->getClientID() . "</pre></td></tr>";
+						echo "<tr><td>Client Secret</td><td><pre>" . $this->google_auth->getClientSecret() . "</pre></td></tr>";
+						echo "<tr><td>Redirect URL</td><td><pre>" . $this->google_auth->getRedirectURL() . "</pre></td></tr>";
 
 						if ( $current_profile != null ) {
 							echo "<tr><td>Most Popular between 1/1/2014 and 1/1/2015</td><td>";
