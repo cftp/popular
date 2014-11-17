@@ -470,7 +470,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						$current_profile = $this->getProfileIDByURL( home_url() );
 						echo "<tr><td>Current Profile</td><td><pre>";
 						if ( $current_profile != null ) {
-							echo '<table><tr><td>'.$current_profile->getName() . "</td><td>" . $current_profile->getAccountId()."</td><td>".$current_profile->getId().'</td></tr></table>';
+							echo $current_profile->getName() . ", " . $current_profile->getAccountId().", ".$current_profile->getId();
 						} else {
 							echo "Current profile couldn't be found";
 						}
