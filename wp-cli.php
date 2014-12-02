@@ -50,7 +50,7 @@ class Popular_Command extends WP_CLI_Command {
 	function cron( $args, $assoc_args ) {
 
 		list( $source ) = $args;
-		$queue = [ ];    // list of tasks we need to do
+		$queue = array();    // list of tasks we need to do
 
 		switch ( $source ) {
 			case 'google':
