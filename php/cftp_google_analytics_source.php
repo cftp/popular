@@ -552,12 +552,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 							echo "</td></tr>";
 						}
 						$accounts = $service->management_accounts->listManagementAccounts();
-						echo "<tr><td>Accounts and Properties</td><td><table>";
+						echo "<tr><td>Accounts and Properties</td><td><table class=\"wp-list-table widefat fixed\">";
 
 						echo '<thead>';
-						echo '<tr><th>Account Name</th><th colspan="2">Account ID</th></tr>';
-						echo '<tr><th style="padding-left:20px;">Property URL</th><th>Account ID</th><th>Property ID</th></tr>';
-						echo '<tr><th style="padding-left:40px;">Profile Name</th><th>Profile ID</th><th></th></tr>';
+						echo '<tr><th><span class="dashicons dashicons-category"></span> Account Name</th><th colspan="2">Account ID</th></tr>';
+						echo '<tr><th style="padding-left:40px;"><span class="dashicons dashicons-category"></span> Property URL</th><th>Account ID</th><th>Property ID</th></tr>';
+						echo '<tr><th style="padding-left:80px;"><span class="dashicons dashicons-tag"></span> Profile Name</th><th>Profile ID</th><th></th></tr>';
 						echo '</thead>';
 						foreach ( $accounts as $account ) {
 							echo '<tr>';
@@ -566,12 +566,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 							echo '</tr>';
 							$properties = $service->management_webproperties->listManagementWebproperties( $account->getId() );
 							foreach ( $properties->items as $prop ) {
-								echo '<tr><td style="padding-left:20px;"><span class="dashicons dashicons-category"></span> ' . $prop->websiteUrl . "</td><td>" . $prop->getAccountId() . "</td><td>" . $prop->getId() . "</td></tr>";
+								echo '<tr><td style="padding-left:40px;"><span class="dashicons dashicons-category"></span> ' . $prop->websiteUrl . "</td><td>" . $prop->getAccountId() . "</td><td>" . $prop->getId() . "</td></tr>";
 								$profiles = $this->google_auth->service->management_profiles->listManagementProfiles( $prop->accountId, $prop->id );
 								if ( !empty( $profiles ) ) {
 									foreach ( $profiles->items as $prof ) {
 										echo '<tr>';
-										echo '<td style="padding-left:40px;"><span class="dashicons dashicons-tag"></span> ' . $prof->getName() . '</td>';
+										echo '<td style="padding-left:80px;"><span class="dashicons dashicons-tag"></span> ' . $prof->getName() . '</td>';
 										echo '<td>' . $prof->getId() . '</td>';
 										echo '<td></td>';
 										echo '</tr>';
