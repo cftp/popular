@@ -551,6 +551,21 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 							}
 							echo "</td></tr>";
 						}
+						$accounts = $service->management_accounts->listManagementAccounts();
+						echo '<table>';
+						foreach ( $accounts as $account ) {
+							echo '<tr>';
+							echo '<td colspan="2">'.$account->getName().'</td>';
+							echo '<td colspan="2">'.$account->getId().'</td>';
+							echo '</tr>';
+							$properties = $service->management_webproperties->listManagementWebproperties( $account->getId() );
+							foreach ( $properties->items as $prop ) {
+								echo '<tr><td></td><td>'.$prop->websiteUrl."</td><td>".$prop->getAccountId()."</td><td>".$prop->getId()."</td></tr>";
+							}
+						}
+						echo '</table>';
+
+
 
 						$props = $service->management_webproperties->listManagementWebproperties( "~all" );
 						echo "<tr><td>Web Properties</td><td><table>";
