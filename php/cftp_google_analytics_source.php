@@ -571,8 +571,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 								if ( !empty( $profiles ) ) {
 									foreach ( $profiles->items as $prof ) {
 										echo '<tr>';
-										echo '<td style="padding-left:80px;"><span class="dashicons dashicons-tag"></span> ' . $prof->getName() . '</td>';
-										echo '<td>' . $prof->getId() . '</td>';
+										$extra_styling = '';
+										if ( $prof == $current_profile ) {
+											$extra_styling = 'color: green; font-weight:bold;';
+										}
+										echo '<td style="padding-left:80px;'.$extra_styling.'"><span class="dashicons dashicons-tag"></span> ' . $prof->getName() . '</td>';
+										echo '<td style="'.$extra_styling.'">' . $prof->getId() . '</td>';
 										echo '<td></td>';
 										echo '</tr>';
 									}
