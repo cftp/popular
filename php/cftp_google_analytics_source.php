@@ -597,13 +597,13 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						echo "<tr><td>Web Properties Raw</td><td><pre>" . print_r( $props, true ) . "</pre></td></tr>";
 
 						$accounts = $service->management_accounts->listManagementAccounts();
-						echo "<tr><td>Accounts</td><td><pre>" . print_r( $accounts, true ) . "</pre></td></tr>";*/
+						echo "<tr><td>Accounts</td><td><pre>" . print_r( $accounts, true ) . "</pre></td></tr>";
 
 						$segments = $service->management_segments->listManagementSegments();
 						echo "<tr><td>Segments</td><td><pre>" . print_r( $segments, true ) . "</pre></td></tr>";
 
 						$goals = $service->management_goals->listManagementGoals( "~all", "~all", "~all" );
-						echo "<tr><td>Goals</td><td><pre>" . print_r( $goals, true ) . "</pre></td></tr>";
+						echo "<tr><td>Goals</td><td><pre>" . print_r( $goals, true ) . "</pre></td></tr>";*/
 						?>
 						</tbody>
 					</table>
