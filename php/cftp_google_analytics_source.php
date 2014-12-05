@@ -501,7 +501,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						$current_profile = $this->getProfileIDByURL( home_url() );
 						echo "<tr><td>Current Profile</td><td><pre>";
 						if ( $current_profile != null ) {
-							echo $current_profile->getName() . ", " . $current_profile->getAccountId().", ".$current_profile->getId();
+							echo $current_profile->getName() . ", Account ID: " . $current_profile->getAccountId().", Profile ID: ".$current_profile->getId();
 						} else {
 							echo "Current profile couldn't be found";
 						}
@@ -583,7 +583,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 
 
 
-						$props = $service->management_webproperties->listManagementWebproperties( "~all" );
+						/*$props = $service->management_webproperties->listManagementWebproperties( "~all" );
 						echo "<tr><td>Web Properties</td><td><table>";
 						echo "<thead><tr><th>URL</th><th>Account ID</th><th>Property ID</th></tr></thead>";
 						foreach ( $props->items as $prop ) {
@@ -593,7 +593,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						echo "<tr><td>Web Properties Raw</td><td><pre>" . print_r( $props, true ) . "</pre></td></tr>";
 
 						$accounts = $service->management_accounts->listManagementAccounts();
-						echo "<tr><td>Accounts</td><td><pre>" . print_r( $accounts, true ) . "</pre></td></tr>";
+						echo "<tr><td>Accounts</td><td><pre>" . print_r( $accounts, true ) . "</pre></td></tr>";*/
 
 						$segments = $service->management_segments->listManagementSegments();
 						echo "<tr><td>Segments</td><td><pre>" . print_r( $segments, true ) . "</pre></td></tr>";
