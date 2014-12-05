@@ -553,6 +553,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						}
 						$accounts = $service->management_accounts->listManagementAccounts();
 						echo "<tr><td>Accounts and Properties</td><td><table>";
+
+						echo '<thead>';
+						echo '<tr><th>Account Name</th><th colspan="2">Account ID</th></tr>';
+						echo '<tr><th style="padding-left:20px;">Property URL</th><th>Account ID</th><th>Property ID</th></tr>';
+						echo '<tr><th style="padding-left:40px;">Profile Name</th><th>Profile ID</th><th></th></tr>';
+						echo '</thead>';
 						foreach ( $accounts as $account ) {
 							echo '<tr>';
 							echo '<td><span class="dashicons dashicons-category"></span> '.$account->getName().'</td>';
