@@ -552,7 +552,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 							echo "</td></tr>";
 						}
 						$accounts = $service->management_accounts->listManagementAccounts();
-						echo '<table>';
+						echo "<tr><td>Accounts and Properties</td><td><table>";
 						foreach ( $accounts as $account ) {
 							echo '<tr>';
 							echo '<td colspan="2">'.$account->getName().'</td>';
@@ -563,7 +563,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 								echo '<tr><td></td><td>'.$prop->websiteUrl."</td><td>".$prop->getAccountId()."</td><td>".$prop->getId()."</td></tr>";
 							}
 						}
-						echo '</table>';
+						echo '</table></td></tr>';
 
 
 
