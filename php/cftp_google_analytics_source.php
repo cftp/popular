@@ -560,12 +560,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 							echo '</tr>';
 							$properties = $service->management_webproperties->listManagementWebproperties( $account->getId() );
 							foreach ( $properties->items as $prop ) {
-								echo '<tr><td><span style="display:block; width:20px;"></span><span class="dashicons dashicons-category"></span> ' . $prop->websiteUrl . "</td><td>" . $prop->getAccountId() . "</td><td>" . $prop->getId() . "</td></tr>";
+								echo '<tr><td style="padding-left:20px;"><span class="dashicons dashicons-category"></span> ' . $prop->websiteUrl . "</td><td>" . $prop->getAccountId() . "</td><td>" . $prop->getId() . "</td></tr>";
 								$profiles = $this->google_auth->service->management_profiles->listManagementProfiles( $prop->accountId, $prop->id );
 								if ( !empty( $profiles ) ) {
 									foreach ( $profiles->items as $prof ) {
 										echo '<tr>';
-										echo '<td><span style="display:block; width:20px;"></span><span style="display:block; width:20px;"></span><span class="dashicons dashicons-tag"></span> ' . $prof->getName() . '</td>';
+										echo '<td style="padding-left:40px;"><span class="dashicons dashicons-tag"></span> ' . $prof->getName() . '</td>';
 										echo '<td>' . $prof->getId() . '</td>';
 										echo '<td></td>';
 										echo '</tr>';
