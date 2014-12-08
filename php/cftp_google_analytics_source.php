@@ -501,10 +501,11 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						<?php
 
 						$service         = $this->google_auth->service;
+						/** @var array $current_profile */
 						$current_profile = $this->getProfileIDByURL( home_url() );
 						echo "<tr><td>Current Profile</td><td><pre>";
 						if ( $current_profile != null ) {
-							echo $current_profile->getName() . ", Account ID: " . $current_profile->getAccountId().", Profile ID: ".$current_profile->getId();
+							echo $current_profile['name'] . ", Account ID: " . $current_profile['accountId'].", Profile ID: ".$current_profile['id'];
 						} else {
 							echo "Current profile couldn't be found";
 						}
@@ -513,7 +514,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						$current_property = $this->getWebProperty( home_url() );
 						echo "<tr><td>Current Web Property</td><td><pre>";
 						if ( $current_property != null ) {
-							echo $current_property->getName() . ", " . $current_property->getId(). ", ".$current_property->getWebsiteUrl();
+							echo $current_property['name'] . ", " . $current_property['id']. ", ".$current_property['websiteUrl'];
 						} else {
 							echo "Current web property couldn't be found";
 						}
@@ -559,17 +560,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						$arr_accounts = $this->google_auth->getAllAccounts();
 						$arr_properties = $this->google_auth->getAllWebProperties();
 
-						$arr_profiles = array();
-						/** @var Google_Service_Analytics_Profile $p */
-						foreach ( $profiles as $p ) {
-							$arr_profiles[ $p->getId() ] = array(
-								'id' => $p->getId(),
-								'name' => $p->getName(),
-								'accountId' => $p->getAccountId(),
-								'webPropertyId' => $p->getWebPropertyId(),
-								'websiteUrl' => $p->getWebsiteUrl()
-							);
-						}
+						$arr_profiles = $this->google_auth->getAllProfiles();
 
 						echo "<tr><td>Accounts and Properties</td><td><table class=\"wp-list-table widefat fixed\">";
 
