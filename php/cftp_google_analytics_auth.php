@@ -41,7 +41,11 @@ class cftp_google_analytics_auth {
 	}
 
 	public function getCurrentProfile() {
-		return $this->getProfileIDByURL( home_url() );
+		$opt = get_option( 'cftp_popular_google_analytics_current_profile' );
+		if ( $opt == false ) {
+			return $this->getProfileIDByURL( home_url() );
+		}
+		return $opt;
 	}
 
 	/**

@@ -179,6 +179,15 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$page, // Page
 			$section_id // Section
 		);
+		if ( $this->isConfigured() ) {
+			add_settings_field(
+				$option_name.'_current_profile', // ID
+				'Google Analytics Profile', // Title
+				array( $this, 'displayProfile' ), // Callback
+				$page, // Page
+				$section_id // Section
+			);
+		}
 
 		add_settings_field(
 			$option_name . '_post_age', // ID
@@ -228,8 +237,52 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	public function displayProfile() {
+		//current_profile
+		$current = $this->google_auth->getCurrentProfile();
+
+		$arr_accounts = $this->google_auth->getAllAccounts();
+		$arr_properties = $this->google_auth->getAllWebProperties();
+		$arr_profiles = $this->google_auth->getAllProfiles();
 		?>
-		<input class="widefat" name="cftp_popular_google_analytics_client_id" value="<?php echo $this->google_auth->getClientID(); ?>"/>
+		<select name="cftp_popular_google_analytics_current_profile">
+			<?php
+
+			foreach ( $arr_accounts as $account ) {
+				$acc_id = $account['id'];
+				$acc_name = $account['name'];
+				$xproperties = array_filter( $arr_properties, function( $arr ) use ( $acc_id ) {
+					if ( $arr['accountId'] == $acc_id ) {
+						return true;
+					}
+					return false;
+				});
+				foreach ( $xproperties as $prop ) {
+					$prop_url = $prop['websiteUrl'];
+					$prop_id = $prop['id'];
+					$xprofiles = array_filter( $arr_profiles, function ( $arr ) use ( $prop_id, $acc_id ) {
+						if ( ( $arr['webPropertyId'] == $prop_id ) && ( $arr['accountId'] == $acc_id ) ) {
+							return true;
+						}
+						return false;
+					} );
+					?>
+					<optgroup label="Acc: <?php echo $acc_name.' - '.$acc_id; ?>, Prop: <?php echo $prop_url.' - '.$prop_url; ?>">
+					<?php
+
+					if ( !empty( $xprofiles ) ) {
+						foreach ( $xprofiles as $prof ) {
+							?>
+							<option value="<?php echo serialize( $prof ); ?>" <?php selected( serialize( $current ), serialize( $prof ) )?>><?php echo $prof['name'];?> - <?php echo $prof['id']; ?></option>
+							<?php
+						}
+					}
+					?>
+					</optgroup>
+					<?php
+				}
+			}
+			?>
+		</select>
 		<?php
 	}
 
