@@ -148,4 +148,105 @@ class cftp_google_analytics_auth {
 		}
 		return true;
 	}
+
+	/**
+	 * @return array
+	 */
+	public function getAllAccounts() {
+		$accounts = get_transient( 'cftp_popular_ga_accounts' );
+		if ( $accounts === false ) {
+			// It wasn't there, so regenerate the data and save the transient
+			$accounts = $this->retrieveAllAccounts();
+			set_transient( 'cftp_popular_ga_accounts', $accounts, DAY_IN_SECONDS );
+		}
+		return $accounts;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function retrieveAllAccounts() {
+		$this->initialiseAPIs();
+		$accounts = $this->service->management_accounts->listManagementAccounts();
+		$arr_accounts = array();
+		/** @var Google_Service_Analytics_Account $a */
+		foreach( $accounts as $a ) {
+			$arr_accounts[ $a->getId() ] = array(
+				'id' => $a->getId(),
+				'name' => $a->getName()
+			);
+		}
+		return $arr_accounts;
+	}
+
+	/**
+	 * Returns the cached array of web properties from the Google API
+	 *
+	 * @return array
+	 */
+	public function getAllWebProperties() {
+		$properties = get_transient( 'cftp_popular_ga_webproperties' );
+		if ( $properties === false ) {
+			// It wasn't there, so regenerate the data and save the transient
+			$properties = $this->retrieveAllWebProperties();
+			set_transient( 'cftp_popular_ga_webproperties', $properties, DAY_IN_SECONDS );
+		}
+		return $properties;
+	}
+
+	/**
+	 * Retrieves a fresh array of web properties from the Google API
+	 *
+	 * @return array
+	 * @see getAllWebProperties
+	 */
+	public function retrieveAllWebProperties() {
+		$this->initialiseAPIs();
+		$properties = $this->service->management_webproperties->listManagementWebproperties( '~all' );
+		$arr_properties = array();
+		/** @var Google_Service_Analytics_Webproperty $p */
+		foreach ( $properties as $p ) {
+			$arr_properties[ $p->getId() ] = array(
+				'id' => $p->getId(),
+				'accountId' => $p->getAccountId(),
+				'name' => $p->getName(),
+				'profileCount' => $p->profileCount,
+				'websiteUrl' => $p->getWebsiteUrl()
+			);
+		}
+		return $arr_properties;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAllProfiles() {
+		$profiles = get_transient( 'cftp_popular_ga_profiles' );
+		if ( $profiles === false ) {
+			// It wasn't there, so regenerate the data and save the transient
+			$profiles = $this->retrieveAllProfiles();
+			set_transient( 'cftp_popular_ga_profiles', $profiles, DAY_IN_SECONDS );
+		}
+		return $profiles;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function retrieveAllProfiles() {
+		$this->initialiseAPIs();
+		$profiles = $this->service->management_profiles->listManagementProfiles( '~all', '~all' );
+		$arr_profiles = array();
+		/** @var Google_Service_Analytics_Profile $p */
+		foreach ( $profiles as $p ) {
+			$arr_profiles[ $p->getId() ] = array(
+				'id' => $p->getId(),
+				'name' => $p->getName(),
+				'accountId' => $p->getAccountId(),
+				'webPropertyId' => $p->getWebPropertyId(),
+				'websiteUrl' => $p->getWebsiteUrl()
+			);
+		}
+		return $arr_profiles;
+	}
 }

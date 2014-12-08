@@ -551,7 +551,23 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 							}
 							echo "</td></tr>";
 						}
-						$accounts = $service->management_accounts->listManagementAccounts();
+
+
+						$arr_accounts = $this->google_auth->getAllAccounts();
+						$arr_properties = $this->google_auth->getAllWebProperties();
+
+						$arr_profiles = array();
+						/** @var Google_Service_Analytics_Profile $p */
+						foreach ( $profiles as $p ) {
+							$arr_profiles[ $p->getId() ] = array(
+								'id' => $p->getId(),
+								'name' => $p->getName(),
+								'accountId' => $p->getAccountId(),
+								'webPropertyId' => $p->getWebPropertyId(),
+								'websiteUrl' => $p->getWebsiteUrl()
+							);
+						}
+
 						echo "<tr><td>Accounts and Properties</td><td><table class=\"wp-list-table widefat fixed\">";
 
 						echo '<thead>';
@@ -559,24 +575,38 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						echo '<tr><th style="padding-left:40px;"><span class="dashicons dashicons-category"></span> Property URL</th><th>Account ID</th><th>Property ID</th></tr>';
 						echo '<tr><th style="padding-left:80px;"><span class="dashicons dashicons-tag"></span> Profile Name</th><th>Profile ID</th><th></th></tr>';
 						echo '</thead>';
-						foreach ( $accounts as $account ) {
+						foreach ( $arr_accounts as $account ) {
+							$acc_id = $account['id'];
 							echo '<tr>';
-							echo '<td><span class="dashicons dashicons-category"></span> '.$account->getName().'</td>';
-							echo '<td colspan="2">'.$account->getId().'</td>';
+							echo '<td><span class="dashicons dashicons-category"></span> '.$account['name'].'</td>';
+							echo '<td colspan="2">'.$acc_id.'</td>';
 							echo '</tr>';
-							$properties = $service->management_webproperties->listManagementWebproperties( $account->getId() );
-							foreach ( $properties->items as $prop ) {
-								echo '<tr><td style="padding-left:40px;"><span class="dashicons dashicons-category"></span> ' . $prop->websiteUrl . "</td><td>" . $prop->getAccountId() . "</td><td>" . $prop->getId() . "</td></tr>";
-								$profiles = $this->google_auth->service->management_profiles->listManagementProfiles( $prop->accountId, $prop->id );
-								if ( !empty( $profiles ) ) {
-									foreach ( $profiles->items as $prof ) {
+							$xproperties = array_filter( $arr_properties, function( $arr ) use ( $acc_id ) {
+								if ( $arr['accountId'] == $acc_id ) {
+									return true;
+								}
+								return false;
+							});
+							foreach ( $xproperties as $prop ) {
+								echo '<tr><td style="padding-left:40px;"><span class="dashicons dashicons-category"></span> ' . $prop['websiteUrl'] . "</td><td>" . $prop['accountId'] . "</td><td>" . $prop['id'] . "</td></tr>";
+								$prop_id = $prop['id'];
+								$xprofiles = array_filter( $arr_profiles, function ( $arr ) use ( $prop_id, $acc_id ) {
+									if ( ( $arr['webPropertyId'] == $prop_id ) && ( $arr['accountId'] == $acc_id ) ) {
+										return true;
+									}
+									return false;
+								} );
+
+								//$xprofiles = $this->google_auth->service->management_profiles->listManagementProfiles( $prop['accountId'], $prop['id'] );
+								if ( !empty( $xprofiles ) ) {
+									foreach ( $xprofiles as $prof ) {
 										echo '<tr>';
 										$extra_styling = '';
-										if ( $prof == $current_profile ) {
+										if ( $prof['id'] == $current_profile->getId() ) {
 											$extra_styling = 'color: green; font-weight:bold;';
 										}
-										echo '<td style="padding-left:80px;'.$extra_styling.'"><span class="dashicons dashicons-tag"></span> ' . $prof->getName() . '</td>';
-										echo '<td style="'.$extra_styling.'">' . $prof->getId() . '</td>';
+										echo '<td style="padding-left:80px;'.$extra_styling.'"><span class="dashicons dashicons-tag"></span> ' . $prof['name'] . '</td>';
+										echo '<td style="'.$extra_styling.'">' . $prof['id'] . '</td>';
 										echo '<td></td>';
 										echo '</tr>';
 									}
@@ -584,7 +614,6 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 							}
 						}
 						echo '</table></td></tr>';
-
 
 
 						/*$props = $service->management_webproperties->listManagementWebproperties( "~all" );
