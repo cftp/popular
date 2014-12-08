@@ -528,7 +528,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 							echo "<tr><td>Most Popular between 1/1/2014 and 1/1/2015</td><td>";
 							try {
 								$data = $service->data_ga->get(
-									'ga:' . $current_profile->getId(),
+									'ga:' . $current_profile['id'],
 									'2014-01-01',
 									'2015-01-01',
 									'ga:pageviews',
