@@ -348,7 +348,6 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 * @return Google_Service_Analytics_Profile|null
 	 */
 	private function getProfileIDByURL( $url ) {
-		$this->initialiseAPIs();
 		$current = $this->getWebProperty( $url );
 		if ( $current != null ) {
 			try {
@@ -370,24 +369,23 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	/**
 	 * @param $url
 	 *
-	 * @return Google_Service_Analytics_Webproperty|null
+	 * @return array|null
 	 */
 	private function getWebProperty( $url ) {
-		$this->initialiseAPIs();
 		if ( strpos( $url,'/') == 0 ) {
 			$url = site_url();
 		}
 		$profiles = array();
 		$matches = array();
 		try {
-			$props = $this->google_auth->service->management_webproperties->listManagementWebproperties("~all");
-			foreach ( $props->items as $prop ) {
-				$match = $this->match_urls( $url, $prop->websiteUrl );
+			$props = $this->google_auth->getAllWebProperties();
+			foreach ( $props as $prop ) {
+				$match = $this->match_urls( $url, $prop['websiteUrl'] );
 				if ( $match == 0 ) {
 					continue;
 				}
-				$profiles[ $prop->websiteUrl ] = $prop;
-				$matches[ $prop->websiteUrl ] = $match;
+				$profiles[ $prop['websiteUrl'] ] = $prop;
+				$matches[ $prop['websiteUrl'] ] = $match;
 			}
 		} catch ( Google_Service_Exception $e ) {
 			$this->google_auth->errors[] = $e;
@@ -428,15 +426,22 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	/**
-	 * @param Google_Service_Analytics_Webproperty|Google_Webproperty $property
+	 * @param array $property
 	 *
 	 * @return null
 	 */
-	private function getFirstProfile( Google_Service_Analytics_Webproperty  $property ) {
-		$this->initialiseAPIs();
-		$profiles = $this->google_auth->service->management_profiles->listManagementProfiles( $property->accountId, $property->id );
-		if ( !empty( $profiles ) ) {
-			foreach ( $profiles->items as $prop ) {
+	private function getFirstProfile( array $property ) {
+		$profiles = $this->google_auth->getAllProfiles();
+		$prop_id = $property['id'];
+		$acc_id = $property['accountId'];
+		$xprofiles = array_filter( $profiles, function ( $arr ) use ( $prop_id, $acc_id ) {
+			if ( ( $arr['webPropertyId'] == $prop_id ) && ( $arr['accountId'] == $acc_id ) ) {
+				return true;
+			}
+			return false;
+		} );
+		if ( !empty( $xprofiles ) ) {
+			foreach ( $xprofiles as $key => $prop ) {
 				return $prop;
 			}
 		}
@@ -449,7 +454,6 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 * @return bool|mixed|string
 	 */
 	public function getPageViewsForURL( $url ) {
-		$this->initialiseAPIs();
 		$profile = $this->getProfileIDByURL( $url );
 		if ( $profile != null ) {
 			$views = $this->getPageViewsURL( $profile, $url);
@@ -464,7 +468,6 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	 * @return bool|mixed|string
 	 */
 	public function getPageViewsByPostID( $post_id ) {
-		$this->initialiseAPIs();
 		$permalink = get_permalink( $post_id );
 		$permalink = str_replace( site_url(), '', $permalink );
 		return $this->getPageViewsForURL( $permalink );
