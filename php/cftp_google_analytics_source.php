@@ -355,12 +355,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	/**
-	 * @param Google_Profile|Google_Service_Analytics_Profile $profile
-	 * @param                                                 $url
+	 * @param array $profile
+	 * @param string $url
 	 *
 	 * @return mixed
 	 */
-	private function getPageViewsURL( Google_Service_Analytics_Profile $profile, $url ) {
+	private function getPageViewsURL( array $profile, $url ) {
 		$this->initialiseAPIs();
 		try {
 			$url  = trailingslashit( $url );
@@ -369,7 +369,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$from = date( 'Y-m-d', $from );
 			if ( isset( $this->google_auth->service->data_ga ) ) {
 				$data = $this->google_auth->service->data_ga->get(
-					'ga:' . $profile->id,
+					'ga:' . $profile['id'],
 					$from,
 					$to,
 					'ga:pageviews',
