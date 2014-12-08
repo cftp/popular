@@ -227,6 +227,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 		<?php
 	}
 
+	public function displayProfile() {
+		?>
+		<input class="widefat" name="cftp_popular_google_analytics_client_id" value="<?php echo $this->google_auth->getClientID(); ?>"/>
+		<?php
+	}
+
 	/**
 	 * @return bool
 	 */
@@ -341,120 +347,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	/**
-	 * Return a Profile object given a URL
-	 *
-	 * @param $url string A URL to compare against, must match a web property in full
-	 *
-	 * @return Google_Service_Analytics_Profile|null
-	 */
-	private function getProfileIDByURL( $url ) {
-		$current = $this->getWebProperty( $url );
-		if ( $current != null ) {
-			try {
-				$profile = $this->getFirstProfile( $current );
-				return $profile;
-			} catch ( Google_Service_Exception $e ) {
-				$this->google_auth->errors[] = $e;
-			} catch ( Google_IO_Exception $e ) {
-				$this->google_auth->errors[] = $e;
-			} catch ( Google_Auth_Exception $e ) {
-				$this->google_auth->errors[] = $e;
-			} catch ( Google_Exception $e ) {
-				$this->google_auth->errors[] = $e;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * @param $url
-	 *
-	 * @return array|null
-	 */
-	private function getWebProperty( $url ) {
-		if ( strpos( $url,'/') == 0 ) {
-			$url = site_url();
-		}
-		$profiles = array();
-		$matches = array();
-		try {
-			$props = $this->google_auth->getAllWebProperties();
-			foreach ( $props as $prop ) {
-				$match = $this->match_urls( $url, $prop['websiteUrl'] );
-				if ( $match == 0 ) {
-					continue;
-				}
-				$profiles[ $prop['websiteUrl'] ] = $prop;
-				$matches[ $prop['websiteUrl'] ] = $match;
-			}
-		} catch ( Google_Service_Exception $e ) {
-			$this->google_auth->errors[] = $e;
-		} catch ( Google_IO_Exception $e ) {
-			$this->google_auth->errors[] = $e;
-		} catch ( Google_Auth_Exception $e ) {
-			$this->google_auth->errors[] = $e;
-		} catch ( Google_Exception $e ) {
-			$this->google_auth->errors[] = $e;
-		}
-
-		if ( !empty( $matches ) ) {
-			arsort( $matches );
-			foreach ( $matches as $key => $value ) {
-				$profile = $profiles[$key];
-				return $profile;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * @param $url The URL we're basing our search on
-	 * @param $property The property URL to test
-	 *
-	 * @return number
-	 */
-	private function match_urls( $url, $property ) {
-		$url = parse_url( $url, PHP_URL_HOST );
-		$property = parse_url( $property, PHP_URL_HOST );
-		if ( strstr( $url, $property ) ) {
-			if ( $url == $property ) {
-				return 2;
-			}
-			return 1;
-		}
-		return 0;
-	}
-
-	/**
-	 * @param array $property
-	 *
-	 * @return null
-	 */
-	private function getFirstProfile( array $property ) {
-		$profiles = $this->google_auth->getAllProfiles();
-		$prop_id = $property['id'];
-		$acc_id = $property['accountId'];
-		$xprofiles = array_filter( $profiles, function ( $arr ) use ( $prop_id, $acc_id ) {
-			if ( ( $arr['webPropertyId'] == $prop_id ) && ( $arr['accountId'] == $acc_id ) ) {
-				return true;
-			}
-			return false;
-		} );
-		if ( !empty( $xprofiles ) ) {
-			foreach ( $xprofiles as $key => $prop ) {
-				return $prop;
-			}
-		}
-		return null;
-	}
-
-	/**
 	 * @param $url
 	 *
 	 * @return bool|mixed|string
 	 */
 	public function getPageViewsForURL( $url ) {
-		$profile = $this->getProfileIDByURL( $url );
+		$profile = $this->google_auth->getProfileIDByURL( $url );
 		if ( $profile != null ) {
 			$views = $this->getPageViewsURL( $profile, $url);
 			return $views;
@@ -474,7 +372,6 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	}
 
 	public function test_page() {
-
 		?>
 		<div class="wrap">
 			<h2>CFTP Popular Tests</h2>
@@ -502,7 +399,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 
 						$service         = $this->google_auth->service;
 						/** @var array $current_profile */
-						$current_profile = $this->getProfileIDByURL( home_url() );
+						$current_profile = $this->google_auth->getCurrentProfile();
 						echo "<tr><td>Current Profile</td><td><pre>";
 						if ( $current_profile != null ) {
 							echo $current_profile['name'] . ", Account ID: " . $current_profile['accountId'].", Profile ID: ".$current_profile['id'];
@@ -511,7 +408,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						}
 						echo "</pre></td></tr>";
 
-						$current_property = $this->getWebProperty( home_url() );
+						$current_property = $this->google_auth->getWebProperty( home_url() );
 						echo "<tr><td>Current Web Property</td><td><pre>";
 						if ( $current_property != null ) {
 							echo $current_property['name'] . ", " . $current_property['id']. ", ".$current_property['websiteUrl'];
@@ -556,10 +453,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 							echo "</td></tr>";
 						}
 
-
 						$arr_accounts = $this->google_auth->getAllAccounts();
 						$arr_properties = $this->google_auth->getAllWebProperties();
-
 						$arr_profiles = $this->google_auth->getAllProfiles();
 
 						echo "<tr><td>Accounts and Properties</td><td><table class=\"wp-list-table widefat fixed\">";

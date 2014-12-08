@@ -40,6 +40,10 @@ class cftp_google_analytics_auth {
 		return admin_url().'options-general.php?page=cftp_popular_settings_page';
 	}
 
+	public function getCurrentProfile() {
+		return $this->getProfileIDByURL( home_url() );
+	}
+
 	/**
 	 * @return bool
 	 */
@@ -248,5 +252,113 @@ class cftp_google_analytics_auth {
 			);
 		}
 		return $arr_profiles;
+	}
+
+	/**
+	 * @param $url
+	 *
+	 * @return array|null
+	 */
+	public function getWebProperty( $url ) {
+		if ( strpos( $url,'/') == 0 ) {
+			$url = site_url();
+		}
+		$profiles = array();
+		$matches = array();
+		try {
+			$props = $this->getAllWebProperties();
+			foreach ( $props as $prop ) {
+				$match = $this->match_urls( $url, $prop['websiteUrl'] );
+				if ( $match == 0 ) {
+					continue;
+				}
+				$profiles[ $prop['websiteUrl'] ] = $prop;
+				$matches[ $prop['websiteUrl'] ] = $match;
+			}
+		} catch ( Google_Service_Exception $e ) {
+			$this->errors[] = $e;
+		} catch ( Google_IO_Exception $e ) {
+			$this->errors[] = $e;
+		} catch ( Google_Auth_Exception $e ) {
+			$this->errors[] = $e;
+		} catch ( Google_Exception $e ) {
+			$this->errors[] = $e;
+		}
+
+		if ( !empty( $matches ) ) {
+			arsort( $matches );
+			foreach ( $matches as $key => $value ) {
+				$profile = $profiles[$key];
+				return $profile;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @param $url string The URL we're basing our search on
+	 * @param $property string The property URL to test
+	 *
+	 * @return number
+	 */
+	private function match_urls( $url, $property ) {
+		$url = parse_url( $url, PHP_URL_HOST );
+		$property = parse_url( $property, PHP_URL_HOST );
+		if ( strstr( $url, $property ) ) {
+			if ( $url == $property ) {
+				return 2;
+			}
+			return 1;
+		}
+		return 0;
+	}
+
+	/**
+	 * @param array $property
+	 *
+	 * @return null
+	 */
+	private function getFirstProfile( array $property ) {
+		$profiles = $this->getAllProfiles();
+		$prop_id = $property['id'];
+		$acc_id = $property['accountId'];
+		$xprofiles = array_filter( $profiles, function ( $arr ) use ( $prop_id, $acc_id ) {
+			if ( ( $arr['webPropertyId'] == $prop_id ) && ( $arr['accountId'] == $acc_id ) ) {
+				return true;
+			}
+			return false;
+		} );
+		if ( !empty( $xprofiles ) ) {
+			foreach ( $xprofiles as $key => $prop ) {
+				return $prop;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Return a Profile object given a URL
+	 *
+	 * @param $url string A URL to compare against, must match a web property in full
+	 *
+	 * @return Google_Service_Analytics_Profile|null
+	 */
+	public function getProfileIDByURL( $url ) {
+		$current = $this->getWebProperty( $url );
+		if ( $current != null ) {
+			try {
+				$profile = $this->getFirstProfile( $current );
+				return $profile;
+			} catch ( Google_Service_Exception $e ) {
+				$this->errors[] = $e;
+			} catch ( Google_IO_Exception $e ) {
+				$this->errors[] = $e;
+			} catch ( Google_Auth_Exception $e ) {
+				$this->errors[] = $e;
+			} catch ( Google_Exception $e ) {
+				$this->errors[] = $e;
+			}
+		}
+		return null;
 	}
 }
