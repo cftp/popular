@@ -368,6 +368,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			$from = strtotime( $to . ' -' . $this->getPostAge() );
 			$from = date( 'Y-m-d', $from );
 			if ( isset( $this->google_auth->service->data_ga ) ) {
+				$filter = 'ga:pagePath=~' . $url;
+				if ( strlen( $filter ) > 128 ) {
+					$new_url = substr( $url, 0, 100 );
+					$new_url = preg_quote( $new_url );
+					$filter = 'ga:pagePath=^'.$new_url.'.*';
+				}
 				$data = $this->google_auth->service->data_ga->get(
 					'ga:' . $profile['id'],
 					$from,
@@ -376,7 +382,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 					array(
 						'dimensions'  => 'ga:pageTitle,ga:pagePath',
 						'sort'        => '-ga:pageviews',
-						'filters'     => 'ga:pagePath=~' . $url,
+						'filters'     => $filter,
 						'max-results' => '1'
 					)
 				);
