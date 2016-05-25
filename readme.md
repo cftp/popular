@@ -32,27 +32,28 @@ Dev Issues / ideas / beginnings of roadmap? (William Turrell, 2014-09-12):
 
 To get Popular fully set up, a process needs to be completed on each site in the network. This involves attaching each site to a Google account and so needs to be done through an account attached the The Tab, rather than a third party.
 Complete the following steps on each site:
-1. Go to Settings > Popular
+
+- Go to Settings > Popular
 Under the heading "Services" you will see three text boxes labelled "Google Analytics Client ID", "Google Analytics Client Secret" and "Google Analytics Client Redirect URL".
-1. Beneath those three boxes will be a paragraph of text, including a link to the "Google Cloud Console". Open that link in a new tab/window.
+- Beneath those three boxes will be a paragraph of text, including a link to the "Google Cloud Console". Open that link in a new tab/window.
 You may need to go through some sort of signup/registration process. Ensure you use a Google account that will be accessible beyond your own existence!
-1. You should now see an empty list of "Projects"
-1. Click the big blue "Create Project" button at the top
-1. Name your project in line with the name of the site you are configuring.
-1. Wait for the project to create (there should be a status indicator in the bottom-right of the screen)
-1. Once created, click on "APIs & Auth" on the left-hand menu
-1. Then click on APIs
-1. Find "Analytics API" and click the "Off" button to the right. This enables the Google Analytics API for your project.
-1. Click on "Credentials" in the left-hand menu
-1. Under "OAuth" click the "Create new Client ID" button
-1. Under Application Type, choose "Web application"
-1. Under "Authorized Javascript Origins" enter the URL of the site you're configuring
-1. Switch back to the WordPress dashboard.
-1. Copy the URL you see in the box labelled "Google Analytics Client Redirect URL"
-1. Go back to Google and paste that URL into the box labelled "Authorized Redirect URIS"
-1. Click "Create Client ID"
-1. You'll now see a "Client ID" and "Client Secret" - long, complicated strings of random numbers and letters.
-1. Paste these two strings into the corresponding boxes on the Popular settings page in WordPress.
-1. Click the "Activate Google Analytics"
-1. Click Allow when asked by Google.
-1. That's it!
+- You should now see an empty list of "Projects"
+- Click the big blue "Create Project" button at the top
+- Name your project in line with the name of the site you are configuring.
+- Wait for the project to create (there should be a status indicator in the bottom-right of the screen)
+- Once created, click on "APIs & Auth" on the left-hand menu
+- Then click on APIs
+- Find "Analytics API" and click the "Off" button to the right. This enables the Google Analytics API for your project.
+- Click on "Credentials" in the left-hand menu
+- Under "OAuth" click the "Create new Client ID" button
+- Under Application Type, choose "Web application"
+- Under "Authorized Javascript Origins" enter the URL of the site you're configuring
+- Switch back to the WordPress dashboard.
+- Copy the URL you see in the box labelled "Google Analytics Client Redirect URL"
+- Go back to Google and paste that URL into the box labelled "Authorized Redirect URIS"
+- Click "Create Client ID"
+- You'll now see a "Client ID" and "Client Secret" - long, complicated strings of random numbers and letters.
+- Paste these two strings into the corresponding boxes on the Popular settings page in WordPress.
+- Click the "Activate Google Analytics"
+- Click Allow when asked by Google.
+- That's it!
