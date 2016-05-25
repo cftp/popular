@@ -6,8 +6,8 @@ class cftp_twitter_source implements cftp_analytics_source {
 
 	public function __construct() {
 		if ( is_admin() ) {
-			add_filter('manage_posts_columns', array( $this, 'columns_head') );
-			add_action('manage_posts_custom_column', array( $this, 'columns_content' ), 10, 2);
+			add_filter( 'manage_posts_columns', array( $this, 'columns_head') );
+			add_action( 'manage_posts_custom_column', array( $this, 'columns_content' ), 10, 2);
 			add_filter( 'manage_edit-post_sortable_columns', array( $this, 'column_register_sortable' ) );
 		}
 
@@ -103,7 +103,11 @@ class cftp_twitter_source implements cftp_analytics_source {
 	 * @return bool|mixed|string
 	 */
 	public function getPageViewsForURL( $url ) {
-		$api = 'http://urls.api.twitter.com/1/urls/count.json?url=';
+		// The twitter API was deprecated and removed, until the
+		// twitter REST API is implemented in Popular, use the openshare
+		// service
+		$api = 'https://opensharecount.com/count.json?url=';
+		//$api = 'http://urls.api.twitter.com/1/urls/count.json?url=';
 		$response = wp_remote_get( $api.$url );
 		if ( !is_wp_error( $response ) ) {
 			if ( $response['response']['code'] == 200 ) {
