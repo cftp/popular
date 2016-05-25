@@ -117,7 +117,7 @@ class cftp_analytics_settings_page {
 		page – <em>Recent Views</em> and <em>Total Shares</em> – for reasons of space.  However there\'s plenty more you can activate by using <em>Screen Options</em>.</p>';
 
 		echo "<p>Data is collected periodically. If it hasn't been yet (or there's a problem), you'll see a clock icon: <span title='pending' class='dashicons dashicons-clock'></span></p>";
-		echo "<p>Twitter counts are powered by OpenShareCount, and will need the domain to be setup with their service. <a href='https://opensharecount.com/'>See here for more information</a>.</p>"
+		echo "<p>Twitter counts are powered by OpenShareCount, and will need the domain to be setup with their service. <a href='https://opensharecount.com/'>See here for more information</a>.</p>";
 	}
 
 	public function sectionUI() {
