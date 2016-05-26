@@ -1,3 +1,7 @@
+# Popular
+
+Popular is a WordPress plugin that retrieves analytics data for posts, so that they can be listed on the frontend and elsewhere. E.g. the most shared posts on Facebook, or the most viewed posts via Google Analytics.
+
 ## Using Google Analytics with Popular
 
 - Use Composer to install the dependencies, including the Google PHP API client library (do you have a /vendor directory?)
