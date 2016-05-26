@@ -48,7 +48,7 @@ class cftp_twitter_source implements cftp_analytics_source {
 			if ( $views === '' ) {
 				echo constant('cftp_analytics_source::column_html_pending');
 			} else  if ( is_numeric( $views ) ) {
-				echo $views;
+				echo intval( $views );
 			} else {
 				echo constant('cftp_analytics_source::column_html_na');
 			}
