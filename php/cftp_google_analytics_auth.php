@@ -73,7 +73,7 @@ class cftp_google_analytics_auth {
 			return true;
 		}
 		if ( !class_exists( 'Google_Client' ) ) {
-			echo '<p><strong>Warning: The <code>Google_Client</code> class doesn\'t exist, did you run composer install to pull down the Google API library?</strong></p>';
+			echo '<p><strong>Warning: The <code>Google_Client</code> class doesn\'t exist, did you run <code>composer install</code> to pull down the Google API library?</strong></p>';
 			return false;
 		}
 
