@@ -60,11 +60,11 @@ class cftp_total_shares_source implements cftp_analytics_source {
 				if ( in_array('picshare/picshare.php',get_option('active_plugins')) ) {
 					// Link to full stats breakdown (served by Picshare but loaded from post_meta)
 					printf( '%d <a title="View full stats" href="%s"><span class="dashicons dashicons-chart-bar"></span></a>',
-						$views,
-						admin_url( 'options-general.php?page=picshare-setting-admin&post-stats-cftp-popular=' . $post_id )
+						intval( $views ),
+						esc_url( admin_url( 'options-general.php?page=picshare-setting-admin&post-stats-cftp-popular=' . $post_id ) )
 					);
 				} else {
-					echo $views;
+					echo intval( $views );
 				}
 
 			} else {
