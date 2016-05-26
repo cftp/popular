@@ -94,7 +94,7 @@ class cftp_analytics_cron_task {
 				$views = $this->source->getPageViewsByPostID( $post->ID );
 
 				if ( defined( 'WP_CLI' ) && WP_CLI ) {
-					printf( "Processing\t%s\t%s\n", $source_name, $post->ID );
+					printf( "Processing\t%s\t%s\n", esc_html( $source_name ), intval( $post->ID ) );
 				}
 
 				if ( $views !== false ) {
