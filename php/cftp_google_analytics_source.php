@@ -34,7 +34,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			echo '<div class="error">';
 			foreach( $this->google_auth->errors as $error ) {
 				?>
-				<p>Error: Popular, Google API Exception: <code>"<?php echo 'Type:'.get_class( $error ).'Code: '.$error->getCode().', Message: '.$error->getMessage(); ?>"</code></p>
+				<p>Error: Popular, Google API Exception: <code>"Type: <?php echo wp_kses_post( get_class( $error ).'Code: '.$error->getCode().', Message: '.$error->getMessage() ); ?>"</code></p>
 				<?php
 			}
 			echo '</div>';
@@ -96,7 +96,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 	function columns_head($defaults) {
 		// Tooltip (duplicate heading so wherever they hover they see it)
 		$defaults['google_last30'] = sprintf( '<span title="%1$s">Views</span> <span class="dashicons dashicons-editor-help" title="%1$s"></span> ',
-			'Page Views last '.$this->getPostAge().' (Google Analytics)' );
+			'Page Views last '.intval( $this->getPostAge() ).' (Google Analytics)' );
 		return $defaults;
 	}
 
@@ -107,7 +107,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			if ( $views === '' ) {
 				echo constant('cftp_analytics_source::column_html_pending');
 			} else  if ( is_numeric( $views ) ) {
-				echo $views;
+				echo intval( $views );
 			} else {
 				echo constant('cftp_analytics_source::column_html_na');
 			}
@@ -205,19 +205,19 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 
 	public function displayClientID() {
 		?>
-		<input class="widefat" name="cftp_popular_google_analytics_client_id" value="<?php echo $this->google_auth->getClientID(); ?>"/>
+		<input class="widefat" name="cftp_popular_google_analytics_client_id" value="<?php echo esc_attr( $this->google_auth->getClientID() ); ?>"/>
 		<?php
 	}
 
 	public function displayClientSecret() {
 		?>
-		<input class="widefat" name="cftp_popular_google_analytics_client_secret" value="<?php echo $this->google_auth->getClientSecret(); ?>"/>
+		<input class="widefat" name="cftp_popular_google_analytics_client_secret" value="<?php echo esc_attr( $this->google_auth->getClientSecret() ); ?>"/>
 		<?php
 	}
 
 	public function displayRedirectURL() {
 		?>
-		<input class="widefat" name="cftp_popular_google_analytics_client_redirect_url" value="<?php echo $this->google_auth->getRedirectURL(); ?>" disabled />
+		<input class="widefat" name="cftp_popular_google_analytics_client_redirect_url" value="<?php echo esc_url( $this->google_auth->getRedirectURL() ); ?>" disabled />
 		<p class="description">To activate Google Analytics support, you will need to fill out the above fields with credentials. When creating those credentials use the above redirect URL.</p>
 		<p class="description">You can create credentials to authenticate with Google by going to the <a href="https://console.developers.google.com/">Google Cloud Console</a>. You'll need to create a project,then create new OAuth credentials of type Web Application, using the redirect URL shown above.</p>
 		<p class="description">Remember to activate the Google Analytics API in your Google Cloud Console, and to add a support email under the credentials section. Failure to do so will generate errors when activating or using Google Analytics.</p>
@@ -226,7 +226,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 
 	public function displayPostAge() {
 		?>
-		<input name="cftp_popular_google_analytics_post_age" value="<?php echo $this->getPostAge(); ?>" placeholder="<?php echo $this->getPostAge(); ?>" />
+		<input name="cftp_popular_google_analytics_post_age" value="<?php echo esc_attr( $this->getPostAge() ); ?>" placeholder="<?php echo esc_attr( $this->getPostAge() ); ?>" />
 		<p class="description">e.g. "30 days", "2 weeks", "3 months", "1 year" (parsed with <a href="http://php.net/strtotime">strtotime</a>).
 			<ul>
 			 <li>Note: if you have existing stats, they won't update instantly if you change this.</li>
@@ -266,13 +266,13 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						return false;
 					} );
 					?>
-					<optgroup label="Acc: <?php echo $acc_name.' - '.$acc_id; ?>, Prop: <?php echo $prop_url.' - '.$prop_url; ?>">
+					<optgroup label="Acc: <?php echo esc_attr( $acc_name.' - '.$acc_id ); ?>, Prop: <?php echo esc_attr( $prop_url.' - '.$prop_url ); ?>">
 					<?php
 
 					if ( !empty( $xprofiles ) ) {
 						foreach ( $xprofiles as $prof ) {
 							?>
-							<option value="<?php echo serialize( $prof ); ?>" <?php selected( serialize( $current ), serialize( $prof ) )?>><?php echo $prof['name'];?> - <?php echo $prof['id']; ?></option>
+							<option value="<?php echo esc_attr( serialize( $prof ) ); ?>" <?php selected( serialize( $current ), serialize( $prof ) )?>><?php echo esc_html( $prof['name'] ); ?> - <?php echo esc_html( $prof['id'] ); ?></option>
 							<?php
 						}
 					}
@@ -325,7 +325,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 				try {
 					$authUrl = $this->google_auth->getAuthURL();
 					?>
-					<a href="<?php echo $authUrl; ?>" class="button">Activate Google Analytics</a>
+					<a href="<?php echo esc_url( $authUrl ); ?>" class="button">Activate Google Analytics</a>
 				<?php
 				} catch ( Google_Service_Exception $e ) {
 					$this->google_auth->errors[] = $e;
@@ -446,7 +446,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 			} else {
 				try {
 					?>
-					<p>Here are some test data retrievals of useful information and debug data. All data is freshly grabbed directly from Google. If you're having issues, check the profile ID and web profile being used matches your site, and make sure you've activated the Google Analytics API.</p>
+					<p>
+						Here are some test data retrievals of useful information and debug data.
+						All data is freshly grabbed directly from Google. If you're having issues,
+						check the profile ID and web profile being used matches your site, and
+						make sure you've activated the Google Analytics API.
+					</p>
 
 					<table class="wp-list-table widefat fixed">
 						<thead>
@@ -456,12 +461,12 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						<tbody>
 						<?php
 
-						$service         = $this->google_auth->service;
+						$service = $this->google_auth->service;
 						/** @var array $current_profile */
 						$current_profile = $this->google_auth->getCurrentProfile();
 						echo "<tr><td>Current Profile</td><td><pre>";
 						if ( $current_profile != null ) {
-							echo $current_profile['name'] . ", Account ID: " . $current_profile['accountId'].", Profile ID: ".$current_profile['id'];
+							echo esc_html( $current_profile['name'] . ", Account ID: " . $current_profile['accountId'].", Profile ID: ".$current_profile['id'] );
 						} else {
 							echo "Current profile couldn't be found";
 						}
@@ -470,15 +475,15 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						$current_property = $this->google_auth->getWebProperty( home_url() );
 						echo "<tr><td>Current Web Property</td><td><pre>";
 						if ( $current_property != null ) {
-							echo $current_property['name'] . ", " . $current_property['id']. ", ".$current_property['websiteUrl'];
+							echo esc_html( $current_property['name'] . ", " . $current_property['id']. ", ".$current_property['websiteUrl'] );
 						} else {
 							echo "Current web property couldn't be found";
 						}
 						echo "</pre></td></tr>";
 
-						echo "<tr><td>Client ID</td><td><pre>" . $this->google_auth->getClientID() . "</pre></td></tr>";
-						echo "<tr><td>Client Secret</td><td><pre>" . $this->google_auth->getClientSecret() . "</pre></td></tr>";
-						echo "<tr><td>Redirect URL</td><td><pre>" . $this->google_auth->getRedirectURL() . "</pre></td></tr>";
+						echo "<tr><td>Client ID</td><td><pre>" . esc_html( $this->google_auth->getClientID() ) . "</pre></td></tr>";
+						echo "<tr><td>Client Secret</td><td><pre>" . esc_html( $this->google_auth->getClientSecret() ) . "</pre></td></tr>";
+						echo "<tr><td>Redirect URL</td><td><pre>" . esc_html( $this->google_auth->getRedirectURL() ) . "</pre></td></tr>";
 
 						if ( $current_profile != null ) {
 							echo "<tr><td>Most Popular between 1/1/2014 and 1/1/2015</td><td>";
@@ -494,9 +499,9 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 										'filters'     => 'ga:pagePath!=/',
 										'max-results' => '10' ) );
 								echo '<table>';
-								echo '<thead><tr><th>' . $data->columnHeaders[0]->name . '</th><th>' . $data->columnHeaders[1]->name . '</th><th>' . $data->columnHeaders[2]->name . '</th></tr></thead>';
+								echo '<thead><tr><th>' . esc_html( $data->columnHeaders[0]->name ) . '</th><th>' . esc_html( $data->columnHeaders[1]->name ) . '</th><th>' . esc_html( $data->columnHeaders[2]->name ) . '</th></tr></thead>';
 								foreach ( $data->rows as $row ) {
-									echo '<tr><td>' . $row[0] . '</td><td>' . $row[1] . '</td><td>' . $row[2] . '</td></tr>';
+									echo '<tr><td>' . esc_html( $row[0] ) . '</td><td>' . esc_html( $row[1] ) . '</td><td>' . esc_html( $row[2] ) . '</td></tr>';
 								}
 								echo '</table>';
 								//echo "<pre>" . print_r( $data, true) . "</pre>";
@@ -526,8 +531,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 						foreach ( $arr_accounts as $account ) {
 							$acc_id = $account['id'];
 							echo '<tr>';
-							echo '<td><span class="dashicons dashicons-category"></span> '.$account['name'].'</td>';
-							echo '<td colspan="2">'.$acc_id.'</td>';
+							echo '<td><span class="dashicons dashicons-category"></span> '.esc_html( $account['name'] ).'</td>';
+							echo '<td colspan="2">'.esc_html( $acc_id ).'</td>';
 							echo '</tr>';
 							$xproperties = array_filter( $arr_properties, function( $arr ) use ( $acc_id ) {
 								if ( $arr['accountId'] == $acc_id ) {
@@ -536,7 +541,7 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 								return false;
 							});
 							foreach ( $xproperties as $prop ) {
-								echo '<tr><td style="padding-left:40px;"><span class="dashicons dashicons-category"></span> ' . $prop['websiteUrl'] . "</td><td>" . $prop['accountId'] . "</td><td>" . $prop['id'] . "</td></tr>";
+								echo '<tr><td style="padding-left:40px;"><span class="dashicons dashicons-category"></span> ' . esc_html( $prop['websiteUrl'] ). "</td><td>" . esc_html( $prop['accountId'] ) . "</td><td>" . esc_html( $prop['id'] ) . "</td></tr>";
 								$prop_id = $prop['id'];
 								$xprofiles = array_filter( $arr_profiles, function ( $arr ) use ( $prop_id, $acc_id ) {
 									if ( ( $arr['webPropertyId'] == $prop_id ) && ( $arr['accountId'] == $acc_id ) ) {
@@ -553,8 +558,8 @@ class cftp_google_analytics_source implements cftp_analytics_source {
 										if ( $prof['id'] == $current_profile['id'] ) {
 											$extra_styling = 'color: green; font-weight:bold;';
 										}
-										echo '<td style="padding-left:80px;'.$extra_styling.'"><span class="dashicons dashicons-tag"></span> ' . $prof['name'] . '</td>';
-										echo '<td style="'.$extra_styling.'">' . $prof['id'] . '</td>';
+										echo '<td style="padding-left:80px;'.esc_attr( $extra_styling ).'"><span class="dashicons dashicons-tag"></span> ' . esc_html( $prof['name'] ) . '</td>';
+										echo '<td style="'.esc_attr( $extra_styling ).'">' . esc_html( $prof['id'] ) . '</td>';
 										echo '<td></td>';
 										echo '</tr>';
 									}
