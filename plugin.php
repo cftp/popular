@@ -4,7 +4,7 @@
  * Plugin URI: http://codeforthepeople.com/
  * Description: Queries Analytic services for web traffic data
  * Author: Tom J Nowell, Code For The People
- * Version: 1.2.1
+ * Version: 1.2.2
  * Author URI: http://codeforthepeople.com/
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
