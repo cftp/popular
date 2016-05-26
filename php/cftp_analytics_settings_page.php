@@ -113,7 +113,7 @@ class cftp_analytics_settings_page {
 	}
 
 	public function headerUI() {
-		echo '<p>When you activate the plugin, we only show two extra columns on the  <a href="'.admin_url('edit.php').'">Posts</a>
+		echo '<p>When you activate the plugin, we only show two extra columns on the  <a href="'.esc_url( admin_url( 'edit.php' ) ).'">Posts</a>
 		page – <em>Recent Views</em> and <em>Total Shares</em> – for reasons of space.  However there\'s plenty more you can activate by using <em>Screen Options</em>.</p>';
 
 		echo "<p>Data is collected periodically. If it hasn't been yet (or there's a problem), you'll see a clock icon: <span title='pending' class='dashicons dashicons-clock'></span></p>";
