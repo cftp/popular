@@ -30,7 +30,8 @@ Dev Issues / ideas / beginnings of roadmap? (William Turrell, 2014-09-12):
 
 ## Setup Instructions for Multisite
 
-To get Popular fully set up, a process needs to be completed on each site in the network. This involves attaching each site to a Google account and so needs to be done through an account attached the The Tab, rather than a third party.
+To get Popular fully set up, a process needs to be completed on each site in the network. This involves attaching each site to a Google account and so needs to be done through the main account holder, rather than a third party.
+
 Complete the following steps on each site:
 
 - Go to Settings > Popular
