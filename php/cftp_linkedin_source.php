@@ -48,7 +48,7 @@ class cftp_linkedin_source implements cftp_analytics_source {
 			if ( $views === '' ) {
 				echo constant('cftp_analytics_source::column_html_pending');
 			} else  if ( is_numeric( $views ) ) {
-				echo $views;
+				echo intval( $views );
 			} else {
 				echo constant('cftp_analytics_source::column_html_na');
 			}
@@ -105,7 +105,7 @@ class cftp_linkedin_source implements cftp_analytics_source {
 	 * @return bool|mixed|string
 	 */
 	public function getPageViewsForURL( $url ) {
-		$api = 'http://www.linkedin.com/countserv/count/share?url=';
+		$api = 'https://www.linkedin.com/countserv/count/share?url=';
 		$response = wp_remote_get( $api. urlencode( $url ). '&lang=en_US&callback=?' );
 		if ( !is_wp_error( $response ) ) {
 			if ( $response['response']['code'] == 200 ) {
