@@ -184,14 +184,17 @@ class cftp_facebook_likes_source implements cftp_analytics_source {
 						$desc = $v['url'];
 					}
 				}
+				
+				$click_count = !empty( $v['click_count'] ) ? $v['click_count'] : 0;
+				$total_count = !empty( $v['total_count'] ) ? $v['total_count'] : 0;
 
 				$stats[ $desc ] = array(
 					'like_count'        => $v['like_count'],
 					'share_count'       => $v['share_count'],
 					'comment_count'     => $v['comment_count'],
 					'commentsbox_count' => $v['commentsbox_count'],
-					'click_count'       => $v['click_count'],
-					'total_count'       => $v['total_count'],
+					'click_count'       => $click_count,
+					'total_count'       => $total_count,
 					// Yes, this is the facebook_likes class, but I'm trying to cut down on API calls.
 					// Let's keep all the Picshare data together.
 					// Also this means we don't need to duplicate any code in facebook_shares etc. either.
