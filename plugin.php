@@ -4,7 +4,7 @@
  * Plugin URI: http://codeforthepeople.com/
  * Description: Queries Analytic services for web traffic data
  * Author: Tom J Nowell, Code For The People
- * Version: 1.2.2
+ * Version: 1.3
  * Author URI: http://codeforthepeople.com/
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -82,8 +82,9 @@ $model->addSource( $twitter );
 $linkedin = $factory->linkedinSource();
 $model->addSource( $linkedin );
 
-$fblikes = $factory->facebookLikesSource();
-$model->addSource( $fblikes );
+// TODO: readd with GraphQL rather than the deprecated REST Server
+//$fblikes = $factory->facebookLikesSource();
+//$model->addSource( $fblikes );
 
 $fbshares = $factory->facebookSharesSource();
 $model->addSource( $fbshares );
