@@ -17,8 +17,8 @@ class Popular_Command extends WP_CLI_Command {
 		$twitter = $this->factory->twitterSharesSource();
 		$this->model->addSource( $twitter );
 
-		$fblikes = $this->factory->facebookLikesSource();
-		$this->model->addSource( $fblikes );
+		//$fblikes = $this->factory->facebookLikesSource();
+		//$this->model->addSource( $fblikes );
 
 		$fbshares = $this->factory->facebookSharesSource();
 		$this->model->addSource( $fbshares );
@@ -58,7 +58,7 @@ class Popular_Command extends WP_CLI_Command {
 				$queue[] = 'decayViewsSource';
 				break;
 			case 'facebook':
-				$queue[] = 'facebookLikesSource';
+				//$queue[] = 'facebookLikesSource';
 				$queue[] = 'facebookSharesSource';
 				$queue[] = 'totalSharesSource';
 				$queue[] = 'decaySharesSource';
@@ -106,9 +106,9 @@ class Popular_Command extends WP_CLI_Command {
 		$source = null;
 
 		switch ( $source_name )  {
-			case 'facebook':
+			/*case 'facebook':
 				$source = $this->factory->facebookLikesSource();
-				break;
+				break;*/
 			case 'googleanalytics':
 				$source = $this->factory->googleAnalyticsSource();
 				break;
